@@ -2547,7 +2547,12 @@ const FALLBACK_CATALOGO = {
     if (btnCopiarPromptInsercao) {
       btnCopiarPromptInsercao.addEventListener("click", () => {
         copiarTexto(
-          'Cadastre este material no BetterVault usando a SKILL.md: escolha a categoria (engenharia-e-codigo | midia-e-motion | referencias-e-livros), salve o conteúdo completo em livros_abertos/LIV-NNN/, preencha a Capa padrão com explicacao_leiga e Sumário de Coordenadas em capas/LIV-NNN_<slug>.md e rode `python bibliotecario.py sincronizar`.',
+          [
+            "Insira este conhecimento no BetterVault (pasta oficial: D:\\00 - Better Vault (Library); NUNCA use o antigo Singularity).",
+            "1) Escolha 1 das 3 categorias: engenharia-e-codigo (codigo-fonte/github-repo, alvo arquivo:linha-linha), midia-e-motion (video/fotos-ref, alvo MM:SS-MM:SS ou Pranchas), referencias-e-livros (pdf-livro/pacote-misto, alvo Cap. X, p. Y-Z).",
+            "2) Preencha as 2 camadas: Capa leve (titulo, subtitulo, explicacao_leiga, resumo_capa, gatilhos, coordenadas) + Livro Aberto (conteudo completo UTF-8 sem BOM / LF).",
+            "3) Se tiver acesso local, envie POST http://127.0.0.1:4325/api/guardar (ou rode `python bibliotecario.py sincronizar` e `testar`). Se for IA só de chat, devolva o JSON pronto de /api/guardar conforme DIRECIONADOR_INSERCAO_IAS.md.",
+          ].join("\n"),
           "Prompt de Inserção"
         );
       });
