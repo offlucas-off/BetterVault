@@ -18,7 +18,7 @@
       <!-- Identidade da Biblioteca -->
       <div class="brand-block">
         <div class="brand-emblem" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
             <path d="M9 7h6"/>
             <path d="M9 11h4"/>
@@ -26,11 +26,9 @@
         </div>
         <div class="brand-text">
           <div class="brand-title-row">
-            <h1 class="brand-title">Biblioteca Simples</h1>
-            <span class="brand-pill" title="Referência Única Autônoma: Leitura rápida + Material completo no mesmo lugar">Referência Única</span>
-            <span class="brand-pill so-tecnico" title="Arquitetura de 3 Estruturas">3 Saltos</span>
+            <h1 class="brand-title">BetterVault</h1>
+            <span class="brand-pill" title="Referência Única Autônoma">Biblioteca</span>
           </div>
-          <p class="brand-subtitle">1. Suas Estantes · 2. Resumo da Capa (1 min) · 3. O Livro Aberto</p>
         </div>
       </div>
 
@@ -134,80 +132,48 @@
       </div>
     </div>
 
-    <!-- Barra de Filtros por Tipo de Material + Trilha Visual Humana de 3 Passos + Medidor de Tempo Economizado -->
-    <div class="bibliotecario-telemetry-row">
-      <!-- Filtros Amigáveis de Tipo de Mídia -->
-      <nav class="midia-filters" id="filtros-midia" aria-label="Filtrar materiais por formato">
-        <button type="button" class="filter-chip is-active" data-tipo="todos">
-          <span>Todos</span>
-          <span class="filter-count" id="count-todos">0</span>
+    <!-- Barra de Abas Principais (Livraria | Favoritos | Skills & Agentes) -->
+    <div class="header-tabs-row">
+      <nav class="primary-tabs" id="nav-abas-principais" role="tablist" aria-label="Navegação principal do BetterVault">
+        <button type="button" role="tab" aria-selected="true" class="primary-tab-btn is-active" id="tab-aba-livraria" data-aba="livraria">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+          </svg>
+          <span>Livraria</span>
         </button>
-        <button type="button" class="filter-chip" data-tipo="pdf-livro">
-          <span aria-hidden="true">📘</span>
-          <span>Livros &amp; PDFs</span>
+        <button type="button" role="tab" aria-selected="false" class="primary-tab-btn" id="tab-aba-favoritos" data-aba="favoritos">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          <span>Favoritos</span>
+          <span class="tab-count-badge" id="badge-count-favoritos">0</span>
         </button>
-        <button type="button" class="filter-chip" data-tipo="video">
-          <span aria-hidden="true">🎬</span>
-          <span>Vídeos &amp; Aulas</span>
-        </button>
-        <button type="button" class="filter-chip" data-tipo="fotos-ref">
-          <span aria-hidden="true">🖼️</span>
-          <span>Fotos &amp; Ideias</span>
-        </button>
-        <button type="button" class="filter-chip" data-tipo="codigo-fonte">
-          <span aria-hidden="true">💻</span>
-          <span>Códigos</span>
-        </button>
-        <button type="button" class="filter-chip" data-tipo="github-repo">
-          <span aria-hidden="true">🗂️</span>
-          <span>Projetos GitHub</span>
+        <button type="button" role="tab" aria-selected="false" class="primary-tab-btn" id="tab-aba-skills" data-aba="skills">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2a4 4 0 0 1 4 4v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2V6a4 4 0 0 1 4-4z"/>
+            <circle cx="9" cy="13" r="1"/>
+            <circle cx="15" cy="13" r="1"/>
+          </svg>
+          <span>Skills &amp; Agentes</span>
         </button>
       </nav>
 
-      <!-- Trilha Visual Humana de 3 Passos -->
-      <div class="saltos-tracker" id="caminho-saltos" aria-label="Trilha de navegação em 3 passos simples">
-        <button type="button" class="salto-step is-visited" id="salto-1" data-salto="master" title="Passo 1: Escolher uma Estante na Coluna 1">
-          <span class="salto-num">1</span>
-          <span class="salto-name" id="salto-1-nome">Escolher Estante</span>
-          <span class="salto-tokens so-tecnico" id="salto-1-tokens">180 tok</span>
-        </button>
-        <span class="salto-arrow" aria-hidden="true">→</span>
-        <button type="button" class="salto-step is-visited" id="salto-2" data-salto="categoria" title="Passo 2: Ler o Resumo da Capa em 1 minuto">
-          <span class="salto-num">2</span>
-          <span class="salto-name" id="salto-2-nome">Ler Resumo da Capa (1 min)</span>
-          <span class="salto-tokens so-tecnico" id="salto-2-tokens">220 tok</span>
-        </button>
-        <span class="salto-arrow" aria-hidden="true">→</span>
-        <button type="button" class="salto-step is-current" id="salto-3" data-salto="capa" title="Capa selecionada atualmente">
-          <span class="salto-num">3</span>
-          <span class="salto-name" id="salto-3-nome">Ir Direto ao Ponto no Material</span>
-          <span class="salto-tokens so-tecnico" id="salto-3-tokens">210 tok</span>
-        </button>
-        <span class="salto-arrow so-tecnico" aria-hidden="true">→</span>
-        <button type="button" class="salto-step is-optional so-tecnico" id="salto-4" data-salto="coordenada" title="Salto Opcional: Coordenada Cirúrgica no Livro Aberto">
-          <span class="salto-num">4</span>
-          <span class="salto-name" id="salto-4-nome">[Opcional] Coordenada</span>
-        </button>
-      </div>
-
-      <!-- Medidor de Tempo Economizado (Humano por padrão; Tokens no Modo Técnico) -->
+      <!-- Medidor Sutil de Tempo Economizado -->
       <div class="efficiency-meter" id="medidor-eficiencia" aria-live="polite">
-        <!-- Modo Humano -->
         <div class="efficiency-text so-simples">
           <span class="eff-human-label">
-            ⚡ Leitura rápida: <strong id="tempo-resumo-capa">1 min</strong> no Resumo
-            <span class="eff-sep">(vs. <strong id="tempo-material-completo">~35 min</strong> no material completo)</span>
+            Resumo: <strong id="tempo-resumo-capa">1 min</strong>
+            <span class="eff-sep">· Completo: <strong id="tempo-material-completo">—</strong></span>
           </span>
         </div>
-        <!-- Modo Técnico / IA -->
         <div class="efficiency-text so-tecnico">
-          <span class="eff-read">Capa: <strong id="eff-tokens-capa">210 tokens</strong></span>
+          <span class="eff-read">Capa: <strong id="eff-tokens-capa">0 tokens</strong></span>
           <span class="eff-sep">vs.</span>
-          <span class="eff-open">Aberto: <strong id="eff-tokens-livro">18.500 tokens</strong></span>
-          <span class="eff-badge" id="eff-pct-badge">98,9% poupado</span>
+          <span class="eff-open">Aberto: <strong id="eff-tokens-livro">0 tokens</strong></span>
+          <span class="eff-badge" id="eff-pct-badge">0% poupado</span>
         </div>
-        <div class="efficiency-bar-track" aria-hidden="true">
-          <div class="efficiency-bar-fill" id="eff-bar-fill" style="width: 96%"></div>
+        <div class="efficiency-bar-track so-tecnico" aria-hidden="true">
+          <div class="efficiency-bar-fill" id="eff-bar-fill" style="width: 0%"></div>
         </div>
       </div>
     </div>
@@ -215,7 +181,7 @@
     <!-- Banner de Resposta Acolhedora do Bibliotecário -->
     <div class="bibliotecario-answer-banner" id="resposta-bibliotecario" hidden aria-live="polite">
       <div class="answer-left">
-        <span class="answer-badge">✨ Recomendação do Bibliotecário</span>
+        <span class="answer-badge">Recomendação do Bibliotecário</span>
         <p class="answer-summary" id="answer-summary-text"></p>
       </div>
       <div class="answer-actions">
@@ -245,7 +211,58 @@
        ESTRUTURA 2: A BIBLIOTECA E AS CAPAS DOS MATERIAIS (3 COLUNAS)
        ==================================================================== -->
   <div class="workspace-shell">
-    <main class="biblioteca-grid" id="biblioteca-grid" data-active-mobile-col="capas">
+    <!-- PAINEL DA ABA 1: LIVRARIA (SUB-BARRA DE FILTROS + 3 COLUNAS) -->
+    <div class="tab-view-livraria" id="painel-aba-livraria">
+      <div class="livraria-subbar">
+        <nav class="midia-filters" id="filtros-midia" aria-label="Filtrar materiais por formato">
+          <button type="button" class="filter-chip is-active" data-tipo="todos">
+            <span>Todos</span>
+            <span class="filter-count" id="count-todos">0</span>
+          </button>
+          <button type="button" class="filter-chip" data-tipo="pdf-livro">
+            <span>Livros &amp; PDFs</span>
+          </button>
+          <button type="button" class="filter-chip" data-tipo="video">
+            <span>Vídeos &amp; Aulas</span>
+          </button>
+          <button type="button" class="filter-chip" data-tipo="fotos-ref">
+            <span>Fotos &amp; Ideias</span>
+          </button>
+          <button type="button" class="filter-chip" data-tipo="codigo-fonte">
+            <span>Códigos</span>
+          </button>
+          <button type="button" class="filter-chip" data-tipo="github-repo">
+            <span>GitHub</span>
+          </button>
+        </nav>
+
+        <div class="saltos-tracker" id="caminho-saltos" aria-label="Trilha de navegação em 3 passos">
+          <button type="button" class="salto-step is-visited" id="salto-1" data-salto="master">
+            <span class="salto-num">1</span>
+            <span class="salto-name" id="salto-1-nome">Estante</span>
+            <span class="salto-tokens so-tecnico" id="salto-1-tokens">0 tok</span>
+          </button>
+          <span class="salto-arrow" aria-hidden="true">→</span>
+          <button type="button" class="salto-step is-visited" id="salto-2" data-salto="categoria">
+            <span class="salto-num">2</span>
+            <span class="salto-name" id="salto-2-nome">Capa (1 min)</span>
+            <span class="salto-tokens so-tecnico" id="salto-2-tokens">0 tok</span>
+          </button>
+          <span class="salto-arrow" aria-hidden="true">→</span>
+          <button type="button" class="salto-step is-current" id="salto-3" data-salto="capa">
+            <span class="salto-num">3</span>
+            <span class="salto-name" id="salto-3-nome">Ponto Exato</span>
+            <span class="salto-tokens so-tecnico" id="salto-3-tokens">0 tok</span>
+          </button>
+          <span class="salto-arrow so-tecnico" aria-hidden="true">→</span>
+          <button type="button" class="salto-step is-optional so-tecnico" id="salto-4" data-salto="coordenada">
+            <span class="salto-num">4</span>
+            <span class="salto-name" id="salto-4-nome">[Opcional] Coordenada</span>
+          </button>
+        </div>
+      </div>
+
+      <main class="biblioteca-grid" id="biblioteca-grid" data-active-mobile-col="capas">
 
       <!-- COLUNA 1: SUAS ESTANTES -->
       <section class="coluna coluna-master" id="coluna-master" aria-labelledby="titulo-col-master">
@@ -440,11 +457,17 @@
               <span class="book-id-badge so-tecnico" id="ficha-id" hidden>LIV-001</span>
               <code class="file-path-pill so-tecnico" id="ficha-caminho-capa" hidden>capas/LIV-001.md</code>
             </div>
-            <div class="contracapa-header-btns so-tecnico" id="contracapa-acoes-header" hidden>
-              <button type="button" id="btn-copiar-caminho-capa" class="btn-copy-xs" title="Copiar caminho do arquivo da Capa">
+            <div class="contracapa-header-btns" id="contracapa-acoes-header" hidden>
+              <button type="button" id="btn-favoritar-contracapa" class="btn-fav-star" aria-pressed="false" title="Fixar nos Favoritos">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                <span id="label-favoritar-contracapa">Favoritar</span>
+              </button>
+              <button type="button" id="btn-copiar-caminho-capa" class="btn-copy-xs so-tecnico" title="Copiar caminho do arquivo da Capa">
                 Copiar Caminho
               </button>
-              <button type="button" id="btn-toggle-md-capa" class="btn-copy-xs" aria-pressed="false" title="Ver o arquivo Markdown bruto desta Capa">
+              <button type="button" id="btn-toggle-md-capa" class="btn-copy-xs so-tecnico" aria-pressed="false" title="Ver o arquivo Markdown bruto desta Capa">
                 .md da Capa
               </button>
             </div>
@@ -535,7 +558,75 @@
           </div>
         </div>
       </section>
-    </main>
+      </main>
+    </div>
+
+    <!-- PAINEL DA ABA 2: FAVORITOS -->
+    <section class="tab-view-panel" id="painel-aba-favoritos" aria-labelledby="titulo-aba-favoritos" hidden>
+      <div class="tab-panel-inner">
+        <header class="tab-panel-header">
+          <div>
+            <h2 class="tab-panel-title" id="titulo-aba-favoritos">Materiais Favoritos</h2>
+            <p class="tab-panel-desc">Acesso rápido aos livros, vídeos, álbuns e códigos que você fixou com estrela.</p>
+          </div>
+          <button type="button" id="btn-voltar-livraria-fav" class="btn-primary-sm">Explorar Livraria</button>
+        </header>
+
+        <div class="capas-grid favoritos-grid" id="grade-favoritos" role="list" aria-label="Lista de materiais favoritos"></div>
+
+        <div class="empty-state" id="estado-vazio-favoritos">
+          <p class="empty-title">Nenhum favorito fixado ainda</p>
+          <p class="empty-desc">Clique no ícone de estrela em qualquer Capa da Livraria para fixar seus materiais mais consultados aqui.</p>
+          <button type="button" id="btn-ir-livraria-vazia" class="btn-guardar-header">Ir para a Livraria</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAINEL DA ABA 3: SKILLS & AGENTES -->
+    <section class="tab-view-panel" id="painel-aba-skills" aria-labelledby="titulo-aba-skills" hidden>
+      <div class="tab-panel-inner">
+        <header class="tab-panel-header">
+          <div>
+            <h2 class="tab-panel-title" id="titulo-aba-skills">Skills &amp; Padrão para Qualquer IA</h2>
+            <p class="tab-panel-desc">Conecte qualquer inteligência artificial ao seu BetterVault usando a Skill oficial e o modelo padrão das 3 categorias.</p>
+          </div>
+          <div class="skills-actions-group">
+            <button type="button" id="btn-copiar-prompt-consulta" class="action-btn">Copiar Prompt de Consulta</button>
+            <button type="button" id="btn-copiar-prompt-insercao" class="action-btn">Copiar Prompt de Inserção</button>
+            <button type="button" id="btn-copiar-skill-completa" class="btn-guardar-header">Copiar SKILL.md Completa</button>
+          </div>
+        </header>
+
+        <div class="skills-categories-grid">
+          <article class="skill-cat-card">
+            <h3>1. Engenharia &amp; Código</h3>
+            <p class="skill-cat-slug"><code>engenharia-e-codigo</code> · <code>codigo-fonte</code> / <code>github-repo</code></p>
+            <p>A Capa guarda o resumo e a tabela de linhas; o código executável completo vai para <code>livros_abertos/LIV-NNN/</code>.</p>
+            <p class="skill-cat-coord">Alvo padrão: <code>arquivo.py:10-45</code></p>
+          </article>
+          <article class="skill-cat-card">
+            <h3>2. Mídia, Vídeo &amp; Motion</h3>
+            <p class="skill-cat-slug"><code>midia-e-motion</code> · <code>video</code> / <code>fotos-ref</code></p>
+            <p>A Capa resume decisões visuais e sonoras; roteiros de minutos ou imagens ficam no Livro Aberto.</p>
+            <p class="skill-cat-coord">Alvo padrão: <code>01:15-03:40</code> ou <code>Pranchas 1-3</code></p>
+          </article>
+          <article class="skill-cat-card">
+            <h3>3. Referências, Livros &amp; Estudos</h3>
+            <p class="skill-cat-slug"><code>referencias-e-livros</code> · <code>pdf-livro</code> / <code>pacote-misto</code></p>
+            <p>A Capa sintetiza a tese e armadilhas; capítulos completos e datasets ficam no Livro Aberto.</p>
+            <p class="skill-cat-coord">Alvo padrão: <code>Cap. 2, p. 19-34</code></p>
+          </article>
+        </div>
+
+        <div class="skill-viewer-card">
+          <div class="code-viewer-bar">
+            <span>SKILL.md Oficial (<code>skills/better-vault/SKILL.md</code>)</span>
+            <button type="button" id="btn-recarregar-skill" class="btn-copy-xs">Atualizar do Disco</button>
+          </div>
+          <pre class="raw-md-pre skill-md-pre"><code id="preview-skill-md">Carregando SKILL.md...</code></pre>
+        </div>
+      </div>
+    </section>
 
     <!-- ====================================================================
          GAVETA LATERAL DIREITA: AJUDA & MODO AVANÇADO / IA (RECOLHIDA POR PADRÃO)

@@ -155,7 +155,11 @@ def parsear_frontmatter_simples(texto: str) -> Tuple[Dict[str, Any], str]:
             else:
                 chave_lista_atual = None
                 valor_limpo = valor.strip('"').strip("'")
-                if valor_limpo.isdigit():
+                if valor_limpo.lower() == "true":
+                    meta[chave] = True
+                elif valor_limpo.lower() == "false":
+                    meta[chave] = False
+                elif valor_limpo.isdigit():
                     meta[chave] = int(valor_limpo)
                 else:
                     meta[chave] = valor_limpo
@@ -403,6 +407,13 @@ def carregar_livros_das_capas() -> List[Dict[str, Any]]:
         cat_id = str(meta.get("categoria", "engenharia-e-codigo")).strip() or "engenharia-e-codigo"
         nome_cat = formatar_nome_categoria_legivel(cat_id, str(meta.get("nome_categoria", "")))
 
+        favorito_raw = meta.get("favorito", False)
+        favorito = (
+            favorito_raw
+            if isinstance(favorito_raw, bool)
+            else str(favorito_raw).strip().lower() in {"true", "1", "sim", "yes"}
+        )
+
         livros.append(
             {
                 "id": livro_id,
@@ -414,6 +425,7 @@ def carregar_livros_das_capas() -> List[Dict[str, Any]]:
                 "categoria": cat_id,
                 "nome_categoria": nome_cat,
                 "tipo_principal": tipo_principal,
+                "favorito": favorito,
                 "tags": list(meta.get("tags", [])),
                 "gatilhos": list(meta.get("gatilhos", [])),
                 "cor_capa": str(meta.get("cor_capa", CORES_POR_TIPO.get(tipo_principal, "#10b981"))),
@@ -1037,6 +1049,7 @@ def guardar_novo_livro(dados: Dict[str, Any]) -> Dict[str, Any]:
     )
 
     linha_nome_cat = f'\nnome_categoria: "{nome_categoria.replace(chr(34), chr(39))}"' if nome_categoria_raw else ""
+    favorito_flag = "true" if bool(dados.get("favorito", False)) else "false"
 
     conteudo_capa = f"""---
 id: {livro_id}
@@ -1047,6 +1060,7 @@ tempo_leitura_capa: "{tempo_leitura_capa}"
 tempo_material_completo: "{tempo_material_completo}"
 categoria: {categoria}{linha_nome_cat}
 tipo_principal: {tipo_principal}
+favorito: {favorito_flag}
 cor_capa: "{cor_capa}"
 tags: {tags_json}
 gatilhos:
@@ -1075,6 +1089,51 @@ tokens_livro_aberto_est: 12000
         "livro": livro_criado,
         "catalogo": catalogo,
     }
+
+
+def alternar_favorito_livro(livro_id: str, favorito: Optional[bool] = None) -> Dict[str, Any]:
+    """Atualiza o campo favorito: true/false no frontmatter da Capa e sincroniza o catálogo."""
+    lid = str(livro_id or "").strip().upper()
+    if not lid:
+        raise ValueError("ID do livro nao informado.")
+
+    arq_alvo = None
+    if DIR_CAPAS.exists():
+        for arq in sorted(DIR_CAPAS.glob(f"{lid}_*.md")):
+            arq_alvo = arq
+            break
+        if arq_alvo is None:
+            for arq in sorted(DIR_CAPAS.glob(f"{lid}.md")):
+                arq_alvo = arq
+                break
+
+    if arq_alvo is None or not arq_alvo.exists():
+        raise FileNotFoundError(f"Capa nao encontrada para {lid}")
+
+    texto = arq_alvo.read_text(encoding="utf-8").replace("\r\n", "\n")
+    meta, _ = parsear_frontmatter_simples(texto)
+    atual = bool(meta.get("favorito", False))
+    novo_valor = (not atual) if favorito is None else bool(favorito)
+    valor_str = "true" if novo_valor else "false"
+
+    linhas = texto.split("\n")
+    if linhas and linhas[0].strip() == "---":
+        idx_fim = -1
+        idx_fav = -1
+        for i in range(1, len(linhas)):
+            if linhas[i].strip() == "---":
+                idx_fim = i
+                break
+            if linhas[i].strip().startswith("favorito:"):
+                idx_fav = i
+        if idx_fav != -1:
+            linhas[idx_fav] = f"favorito: {valor_str}"
+        elif idx_fim != -1:
+            linhas.insert(idx_fim, f"favorito: {valor_str}")
+        escrever_utf8_lf(arq_alvo, "\n".join(linhas))
+
+    catalogo = comando_sincronizar(silencioso=True)
+    return {"ok": True, "id": lid, "favorito": novo_valor, "catalogo": catalogo}
 
 
 def comando_catalogar(args: argparse.Namespace) -> int:
@@ -1197,6 +1256,19 @@ class ManipuladorBibliotecaHTTP(SimpleHTTPRequestHandler):
                 if not isinstance(dados, dict):
                     raise ValueError("Payload JSON deve ser um objeto.")
                 res = guardar_novo_livro(dados)
+                self._enviar_json(200, res)
+            except Exception as exc:
+                self._enviar_json(400, {"ok": False, "erro": str(exc)})
+            return
+
+        if rota == "/api/favoritar":
+            try:
+                dados = json.loads(bruto.decode("utf-8")) if bruto else {}
+                if not isinstance(dados, dict):
+                    raise ValueError("Payload JSON deve ser um objeto.")
+                fav_arg = dados.get("favorito", None)
+                fav_bool = None if fav_arg is None else bool(fav_arg)
+                res = alternar_favorito_livro(str(dados.get("id", "")), fav_bool)
                 self._enviar_json(200, res)
             except Exception as exc:
                 self._enviar_json(400, {"ok": False, "erro": str(exc)})
@@ -1335,6 +1407,11 @@ def comando_testar() -> int:
             ids_cat_pos = {c["id"] for c in catalogo_pos_criacao.get("categorias", [])}
             if "financas-e-negocios" not in ids_cat_pos:
                 erros.append(f"Estante dinamica 'financas-e-negocios' nao foi descoberta: {ids_cat_pos}")
+
+            # Testar alternar_favorito_livro
+            res_fav = alternar_favorito_livro(id_criado, True)
+            if not res_fav.get("ok") or res_fav.get("favorito") is not True:
+                erros.append(f"alternar_favorito_livro falhou ao marcar favorito: {res_fav}")
 
             # Busca pelo livro recém-criado
             res_busca, dt_busca_ms = buscar_no_catalogo("teste-e2e catalogacao visual", catalogo_pos_criacao)

@@ -62,6 +62,18 @@ Sempre que o usuário pedir para guardar, documentar ou catalogar um novo materi
 
 ---
 
+### Modelo Padrão Universal por Categoria (3 Estantes → Conteúdo Aprofundado)
+
+Antes de gravar qualquer conhecimento, classifique-o em uma das **3 categorias padrão** e estruture o **Livro Aberto** (`livros_abertos/LIV-NNN/`) + **Capa** (`capas/LIV-NNN_*.md`) conforme a tabela abaixo:
+
+| Categoria (`slug`) | `tipo_principal` esperado | O que vai no **Livro Aberto** (`livros_abertos/LIV-NNN/`) | Formato obrigatório do **Alvo Exato** na Capa |
+|---|---|---|---|
+| **`engenharia-e-codigo`** *(Engenharia & Código)* | `codigo-fonte` ou `github-repo` | Arquivos executáveis reais (`.py`, `.js`, `.ts`, `.sh`, `.html`) + `GUIA_TECNICO.md` ou `MAPA_REPOSITORIO.md`. | `arquivo.py:10-45` (`codigo`)<br>`GUIA_TECNICO.md:Cap. 1-2` (`doc`) |
+| **`midia-e-motion`** *(Mídia, Vídeo & Motion)* | `video` ou `fotos-ref` | Para vídeo: `ROTEIRO_E_TIMESTAMPS.md` + scripts/presets.<br>Para fotos: imagens (`.svg`, `.png`, `.webp`) + `GUIA_VISUAL.md`. | `01:15-03:40` (`video`)<br>`Pranchas 1-3` ou `prancha.svg:1-30` (`imagem`) |
+| **`referencias-e-livros`** *(Referências, Livros & Benchmarks)* | `pdf-livro` ou `pacote-misto` | Documento completo estruturado por capítulos (`LIVRO_CAPITULOS.md` ou PDF) + dados/relatórios se pacote misto. | `Cap. 2, p. 19-34` (`pdf`)<br>`Seções 1-3` (`doc`) |
+
+---
+
 ### Opção A — Catalogação em 1 Comando via CLI (`python bibliotecario.py catalogar`)
 
 É a forma mais rápida e segura: cria a pasta em `livros_abertos/LIV-NNN/`, copia arquivos reais (`--arquivo-origem`) ou grava o arquivo de conteúdo (`--nome-arquivo` + `--conteudo-arquivo`), gera a Capa Markdown padronizada em `capas/` e roda a sincronização completa automaticamente. Se `--id` for omitido, calcula automaticamente o próximo `LIV-NNN`.
@@ -182,6 +194,7 @@ tempo_material_completo: "Projeto com 3 arquivos"
 categoria: engenharia-e-codigo
 nome_categoria: "Engenharia & Código"
 tipo_principal: codigo-fonte
+favorito: false
 cor_capa: "#10b981"
 tags: ["tag1", "tag2", "tag3"]
 gatilhos:

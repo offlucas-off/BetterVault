@@ -42,11 +42,15 @@ const FALLBACK_CATALOGO = {
   "use strict";
 
   const CHAVE_LOCAL_STORAGE = "biblioteca_simples_itens_locais_v1";
+  const CHAVE_FAVORITOS = "bettervault_favoritos_v1";
 
   // Estado reativo único da aplicação
   const estado = {
     catalogo: JSON.parse(JSON.stringify(FALLBACK_CATALOGO)),
     fonteCarregamento: "acervo local pronto",
+    abaPrincipal: "livraria", // "livraria" | "favoritos" | "skills"
+    favoritosIds: new Set(),
+    skillMdTexto: "",
     modoExperiencia: "simples", // "simples" (100% humano) ou "tecnico" (IA / .md / tokens)
     categoriaAtiva: "todas",
     tipoMidiaAtivo: "todos",
@@ -64,6 +68,71 @@ const FALLBACK_CATALOGO = {
     timestampVideoAtivo: 0,
     cacheMarkdown: {}
   };
+
+  function carregarFavoritosLocais() {
+    try {
+      const bruto = localStorage.getItem(CHAVE_FAVORITOS);
+      if (bruto) {
+        const arr = JSON.parse(bruto);
+        if (Array.isArray(arr)) {
+          arr.forEach((id) => estado.favoritosIds.add(String(id)));
+        }
+      }
+    } catch (_e) {
+      // Ignora erro de storage
+    }
+    for (const l of estado.catalogo.livros || []) {
+      if (l.favorito) estado.favoritosIds.add(l.id);
+    }
+  }
+
+  function salvarFavoritosLocais() {
+    try {
+      localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify(Array.from(estado.favoritosIds)));
+    } catch (_e) {
+      // Ignora erro de quota
+    }
+  }
+
+  function ehFavorito(livroId) {
+    return estado.favoritosIds.has(livroId);
+  }
+
+  async function alternarFavorito(livroId) {
+    if (!livroId) return;
+    const novoValor = !ehFavorito(livroId);
+    if (novoValor) {
+      estado.favoritosIds.add(livroId);
+    } else {
+      estado.favoritosIds.delete(livroId);
+    }
+    const livro = obterLivroPorId(livroId);
+    if (livro) livro.favorito = novoValor;
+    salvarFavoritosLocais();
+    renderizarTudo();
+    mostrarToast(novoValor ? "Fixado nos Favoritos." : "Removido dos Favoritos.");
+
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 1800);
+      await fetch("/api/favoritar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: livroId, favorito: novoValor }),
+        signal: controller.signal
+      });
+      clearTimeout(timer);
+    } catch (_err) {
+      // Modo offline/estático: permanece salvo no localStorage
+    }
+  }
+
+  function atualizarBadgeFavoritos() {
+    const idsValidos = new Set((estado.catalogo.livros || []).map((l) => l.id));
+    const totalFavs = Array.from(estado.favoritosIds).filter((id) => idsValidos.has(id)).length;
+    const badge = document.getElementById("badge-count-favoritos");
+    if (badge) badge.textContent = String(totalFavs);
+  }
 
   // Gera sugestões de perguntas dinamicamente a partir dos livros reais do catálogo
   function obterPerguntasSugeridas() {
@@ -460,6 +529,7 @@ const FALLBACK_CATALOGO = {
       }
     }
     mesclarLivrosLocaisAoCatalogo();
+    carregarFavoritosLocais();
     renderizarTudo();
   }
 
@@ -886,6 +956,134 @@ const FALLBACK_CATALOGO = {
     `;
   }
 
+  function renderizarCapaCardHtml(livro, selecionado) {
+    const metaTipo = TIPOS_MIDIA_META[livro.tipo_principal] || TIPOS_MIDIA_META["pdf-livro"];
+    const corLombada = livro.cor_capa || metaTipo.cor;
+    const tokCapa = livro.tokens_capa || 500;
+    const tokLivro = livro.tokens_livro_aberto_est || 18000;
+    const economia = ((1 - tokCapa / tokLivro) * 100).toFixed(1).replace(".", ",");
+    const qtdCoords = (livro.coordenadas || []).length;
+    const tempoCapa = livro.tempo_leitura_capa || "1 min";
+    const tempoCompleto = obterTempoMaterialCompleto(livro);
+    const explicacao = obterExplicacaoLeiga(livro);
+    const fav = ehFavorito(livro.id);
+
+    return `
+      <article
+        class="capa-card ${selecionado ? "is-selected" : ""}"
+        role="listitem"
+        tabindex="0"
+        data-livro-id="${escaparHtml(livro.id)}"
+        aria-label="${escaparHtml(metaTipo.rotuloCurto)}: ${escaparHtml(livro.titulo)}"
+      >
+        <div class="capa-inner">
+          <div class="capa-ilustracao-header" data-tipo-capa="${escaparHtml(livro.tipo_principal)}">
+            <div class="capa-ilustracao-left">
+              <span class="capa-dot" style="--dot-color: ${escaparHtml(corLombada)}" aria-hidden="true"></span>
+              ${metaTipo.arteSvg}
+              <span class="capa-art-badge">${escaparHtml(metaTipo.rotuloCurto)}</span>
+              <span class="book-id-badge so-tecnico">${escaparHtml(livro.id)}</span>
+            </div>
+            <div class="capa-header-right">
+              <span class="capa-full-time-pill">${escaparHtml(tempoCompleto)}</span>
+              <button
+                type="button"
+                class="btn-star-card ${fav ? "is-favorited" : ""}"
+                data-fav-id="${escaparHtml(livro.id)}"
+                aria-pressed="${String(fav)}"
+                title="${fav ? "Remover dos Favoritos" : "Fixar nos Favoritos"}"
+              >
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="${fav ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <h3 class="capa-titulo">${escaparHtml(livro.titulo)}</h3>
+          <p class="capa-resumo-limpo">${escaparHtml(explicacao)}</p>
+
+          <div class="capa-footer">
+            <div class="capa-human-meta so-simples">
+              <span class="capa-fast-read">Resumo de ${escaparHtml(tempoCapa)}</span>
+              <span class="capa-jump-points">${qtdCoords} ${qtdCoords === 1 ? "ponto" : "pontos"}</span>
+            </div>
+            <div class="capa-human-meta so-tecnico">
+              <span class="capa-tokens-bar">
+                Capa: <strong>${tokCapa} tok</strong> vs. ${tokLivro.toLocaleString("pt-BR")}
+              </span>
+              <span class="capa-savings-pill">
+                -${economia}% · ${qtdCoords} alvos
+              </span>
+            </div>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  function renderizarAbaFavoritos() {
+    const grade = document.getElementById("grade-favoritos");
+    const vazio = document.getElementById("estado-vazio-favoritos");
+    if (!grade || !vazio) return;
+
+    const favoritos = (estado.catalogo.livros || []).filter((l) => ehFavorito(l.id));
+    if (favoritos.length === 0) {
+      grade.innerHTML = "";
+      vazio.hidden = false;
+      return;
+    }
+
+    vazio.hidden = true;
+    grade.innerHTML = favoritos.map((livro) => (
+      renderizarCapaCardHtml(livro, livro.id === estado.livroSelecionadoId)
+    )).join("");
+  }
+
+  async function carregarEExibirSkill() {
+    const elPreview = document.getElementById("preview-skill-md");
+    if (!elPreview) return;
+
+    if (!estado.skillMdTexto) {
+      try {
+        const resp = await fetch("../SKILL.md", { cache: "no-store" });
+        if (resp.ok) {
+          estado.skillMdTexto = await resp.text();
+        }
+      } catch (_err) {
+        // Fallback offline abaixo
+      }
+    }
+
+    if (!estado.skillMdTexto) {
+      estado.skillMdTexto = `# SKILL: BetterVault — Operação Autônoma da Biblioteca em 3 Estruturas\n\n1. Consulte INDICE_MASTER.md -> categorias/<cat>.md -> capas/LIV-NNN_*.md (ou rode: python bibliotecario.py buscar "<termo>").\n2. Para inserir novos materiais nas 3 categorias (engenharia-e-codigo, midia-e-motion, referencias-e-livros):\n   - Grave os arquivos completos em livros_abertos/LIV-NNN/\n   - Preencha a Capa em capas/LIV-NNN_<slug>.md com explicacao_leiga, Síntese Executiva e Sumário de Coordenadas\n   - Rode: python bibliotecario.py sincronizar`;
+    }
+
+    elPreview.textContent = estado.skillMdTexto;
+  }
+
+  function alternarAbaPrincipal(novaAba) {
+    estado.abaPrincipal = novaAba;
+    const pLivraria = document.getElementById("painel-aba-livraria");
+    const pFavs = document.getElementById("painel-aba-favoritos");
+    const pSkills = document.getElementById("painel-aba-skills");
+    const mobTabs = document.getElementById("mobile-col-tabs");
+
+    if (pLivraria) pLivraria.hidden = novaAba !== "livraria";
+    if (pFavs) pFavs.hidden = novaAba !== "favoritos";
+    if (pSkills) pSkills.hidden = novaAba !== "skills";
+    if (mobTabs) mobTabs.style.display = novaAba === "livraria" ? "" : "none";
+
+    document.querySelectorAll("#nav-abas-principais .primary-tab-btn").forEach((btn) => {
+      const ativo = btn.getAttribute("data-aba") === novaAba;
+      btn.classList.toggle("is-active", ativo);
+      btn.setAttribute("aria-selected", String(ativo));
+    });
+
+    if (novaAba === "favoritos") renderizarAbaFavoritos();
+    if (novaAba === "skills") carregarEExibirSkill();
+  }
+
   function renderizarColunaCapas() {
     renderizarFaixaDestaques();
 
@@ -955,63 +1153,9 @@ const FALLBACK_CATALOGO = {
       estado.livroSelecionadoId = visiveis[0].id;
     }
 
-    grade.innerHTML = visiveis.map((livro) => {
-      const selecionado = livro.id === estado.livroSelecionadoId;
-      const metaTipo = TIPOS_MIDIA_META[livro.tipo_principal] || TIPOS_MIDIA_META["pdf-livro"];
-      const corLombada = livro.cor_capa || metaTipo.cor;
-      const tokCapa = livro.tokens_capa || 500;
-      const tokLivro = livro.tokens_livro_aberto_est || 18000;
-      const economia = ((1 - tokCapa / tokLivro) * 100).toFixed(1).replace(".", ",");
-      const qtdCoords = (livro.coordenadas || []).length;
-      const tempoCapa = livro.tempo_leitura_capa || "1 min";
-      const tempoCompleto = obterTempoMaterialCompleto(livro);
-      const explicacao = obterExplicacaoLeiga(livro);
-
-      return `
-        <article
-          class="capa-card ${selecionado ? "is-selected" : ""}"
-          role="listitem"
-          tabindex="0"
-          data-livro-id="${escaparHtml(livro.id)}"
-          aria-label="${escaparHtml(metaTipo.rotuloCurto)}: ${escaparHtml(livro.titulo)}"
-        >
-          <div class="capa-lombada" style="--spine-color: ${escaparHtml(corLombada)}"></div>
-          <div class="capa-inner">
-            <!-- Cabeçalho Ilustrado de Capa -->
-            <div class="capa-ilustracao-header" data-tipo-capa="${escaparHtml(livro.tipo_principal)}">
-              <div class="capa-ilustracao-left">
-                ${metaTipo.arteSvg}
-                <span class="capa-art-badge">${escaparHtml(metaTipo.rotulo)}</span>
-                <span class="book-id-badge so-tecnico">${escaparHtml(livro.id)}</span>
-              </div>
-              <span class="capa-full-time-pill">${escaparHtml(tempoCompleto)}</span>
-            </div>
-
-            <h3 class="capa-titulo">${escaparHtml(livro.titulo)}</h3>
-
-            <!-- Boxe Destacado: Para que serve -->
-            <div class="capa-para-que-serve">
-              <strong>Para que serve:</strong> ${escaparHtml(explicacao)}
-            </div>
-
-            <div class="capa-footer">
-              <div class="capa-human-meta so-simples">
-                <span class="capa-fast-read">⚡ Resumo de ${escaparHtml(tempoCapa)}</span>
-                <span class="capa-jump-points">🎯 ${qtdCoords} ${qtdCoords === 1 ? "ponto" : "pontos"} para ir direto ao assunto</span>
-              </div>
-              <div class="capa-human-meta so-tecnico">
-                <span class="capa-tokens-bar">
-                  Capa: <strong>${tokCapa} tok</strong> vs. ${tokLivro.toLocaleString("pt-BR")}
-                </span>
-                <span class="capa-savings-pill">
-                  -${economia}% · ${qtdCoords} alvos
-                </span>
-              </div>
-            </div>
-          </div>
-        </article>
-      `;
-    }).join("");
+    grade.innerHTML = visiveis.map((livro) => (
+      renderizarCapaCardHtml(livro, livro.id === estado.livroSelecionadoId)
+    )).join("");
   }
 
   async function renderizarColunaContracapa() {
@@ -1068,6 +1212,15 @@ const FALLBACK_CATALOGO = {
     if (elTitulo) elTitulo.textContent = livro.titulo;
     if (elSubtitulo) elSubtitulo.textContent = livro.subtitulo;
     if (elCaminhoLivro) elCaminhoLivro.textContent = livro.caminho_livro_aberto;
+
+    const btnFavContracapa = document.getElementById("btn-favoritar-contracapa");
+    const lblFavContracapa = document.getElementById("label-favoritar-contracapa");
+    if (btnFavContracapa) {
+      const fav = ehFavorito(livro.id);
+      btnFavContracapa.classList.toggle("is-favorited", fav);
+      btnFavContracapa.setAttribute("aria-pressed", String(fav));
+      if (lblFavContracapa) lblFavContracapa.textContent = fav ? "Favoritado" : "Favoritar";
+    }
 
     const qtdArq = ((livro.livro_aberto && livro.livro_aberto.arquivos) || []).length;
     const tempoCompleto = obterTempoMaterialCompleto(livro);
@@ -1949,12 +2102,15 @@ const FALLBACK_CATALOGO = {
 
   function renderizarTudo() {
     atualizarModoExperienciaDOM();
+    atualizarBadgeFavoritos();
     renderizarPerguntasRapidas();
     renderizarTelemetriaECaminho();
     renderizarColunaMaster();
     renderizarColunaCapas();
     renderizarColunaContracapa();
     popularSelectCategoriasGuardar();
+    if (estado.abaPrincipal === "favoritos") renderizarAbaFavoritos();
+    if (estado.abaPrincipal === "skills") carregarEExibirSkill();
 
     document.querySelectorAll("#filtros-midia .filter-chip").forEach((btn) => {
       btn.classList.toggle("is-active", btn.getAttribute("data-tipo") === estado.tipoMidiaAtivo);
@@ -2170,10 +2326,16 @@ const FALLBACK_CATALOGO = {
       });
     }
 
-    // Coluna 2: Clique em uma Capa
+    // Coluna 2: Clique em uma Capa ou no botão de Favorito
     const gradeCapas = document.getElementById("grade-capas");
     if (gradeCapas) {
       gradeCapas.addEventListener("click", (e) => {
+        const favBtn = e.target.closest("[data-fav-id]");
+        if (favBtn) {
+          e.stopPropagation();
+          alternarFavorito(favBtn.getAttribute("data-fav-id"));
+          return;
+        }
         const card = e.target.closest("[data-livro-id]");
         if (!card) return;
         estado.livroSelecionadoId = card.getAttribute("data-livro-id");
@@ -2191,6 +2353,84 @@ const FALLBACK_CATALOGO = {
           estado.abaMobileAtiva = "contracapa";
           renderizarTudo();
         }
+      });
+    }
+
+    // Abas Principais (Livraria | Favoritos | Skills & Agentes)
+    const navAbas = document.getElementById("nav-abas-principais");
+    if (navAbas) {
+      navAbas.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-aba]");
+        if (!btn) return;
+        alternarAbaPrincipal(btn.getAttribute("data-aba"));
+      });
+    }
+
+    const gradeFavoritos = document.getElementById("grade-favoritos");
+    if (gradeFavoritos) {
+      gradeFavoritos.addEventListener("click", (e) => {
+        const favBtn = e.target.closest("[data-fav-id]");
+        if (favBtn) {
+          e.stopPropagation();
+          alternarFavorito(favBtn.getAttribute("data-fav-id"));
+          return;
+        }
+        const card = e.target.closest("[data-livro-id]");
+        if (!card) return;
+        estado.livroSelecionadoId = card.getAttribute("data-livro-id");
+        estado.coordenadaDestacadaIdx = null;
+        estado.abaMobileAtiva = "contracapa";
+        alternarAbaPrincipal("livraria");
+        renderizarTudo();
+      });
+    }
+
+    const btnFavContracapa = document.getElementById("btn-favoritar-contracapa");
+    if (btnFavContracapa) {
+      btnFavContracapa.addEventListener("click", () => {
+        if (estado.livroSelecionadoId) alternarFavorito(estado.livroSelecionadoId);
+      });
+    }
+
+    const btnVoltarFav = document.getElementById("btn-voltar-livraria-fav");
+    if (btnVoltarFav) btnVoltarFav.addEventListener("click", () => alternarAbaPrincipal("livraria"));
+    const btnIrFavVazia = document.getElementById("btn-ir-livraria-vazia");
+    if (btnIrFavVazia) btnIrFavVazia.addEventListener("click", () => alternarAbaPrincipal("livraria"));
+
+    const btnCopiarSkill = document.getElementById("btn-copiar-skill-completa");
+    if (btnCopiarSkill) {
+      btnCopiarSkill.addEventListener("click", async () => {
+        await carregarEExibirSkill();
+        copiarTexto(estado.skillMdTexto, "SKILL.md completa");
+      });
+    }
+
+    const btnCopiarPromptConsulta = document.getElementById("btn-copiar-prompt-consulta");
+    if (btnCopiarPromptConsulta) {
+      btnCopiarPromptConsulta.addEventListener("click", () => {
+        copiarTexto(
+          'Consulte o BetterVault seguindo os 3 saltos (INDICE_MASTER.md -> categorias/<cat>.md -> capas/LIV-NNN_*.md ou `python bibliotecario.py buscar "<tema>"`) antes de abrir qualquer arquivo em livros_abertos/.',
+          "Prompt de Consulta"
+        );
+      });
+    }
+
+    const btnCopiarPromptInsercao = document.getElementById("btn-copiar-prompt-insercao");
+    if (btnCopiarPromptInsercao) {
+      btnCopiarPromptInsercao.addEventListener("click", () => {
+        copiarTexto(
+          'Cadastre este material no BetterVault usando a SKILL.md: escolha a categoria (engenharia-e-codigo | midia-e-motion | referencias-e-livros), salve o conteúdo completo em livros_abertos/LIV-NNN/, preencha a Capa padrão com explicacao_leiga e Sumário de Coordenadas em capas/LIV-NNN_<slug>.md e rode `python bibliotecario.py sincronizar`.',
+          "Prompt de Inserção"
+        );
+      });
+    }
+
+    const btnRecarregarSkill = document.getElementById("btn-recarregar-skill");
+    if (btnRecarregarSkill) {
+      btnRecarregarSkill.addEventListener("click", () => {
+        estado.skillMdTexto = "";
+        carregarEExibirSkill();
+        mostrarToast("SKILL.md recarregada.");
       });
     }
 
