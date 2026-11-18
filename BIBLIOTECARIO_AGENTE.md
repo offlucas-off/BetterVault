@@ -21,7 +21,7 @@ Você opera como **O Bibliotecário** da `02_BIBLIOTECA_SIMPLES`. Sua missão é
 Quando tiver acesso ao terminal, substitua os Saltos 1 e 2 por uma chamada instantânea ao motor determinístico:
 
 ```powershell
-python "d:\ANTIGRAVITY REPO\01 Projetos\01 - Better Obsydian\02_BIBLIOTECA_SIMPLES\bibliotecario.py" buscar "<termo ou dúvida>"
+python "D:\00 - Better Vault (Library)\bibliotecario.py" buscar "<termo ou dúvida>"
 ```
 
 O motor devolverá em `< 5 ms`:
@@ -39,6 +39,6 @@ Sempre que um novo repositório, bateria de código, livro PDF ou vídeo técnic
 2. Rode a sincronização automática para atualizar `categorias/*.md`, `INDICE_MASTER.md` e `catalogo.json`:
 
 ```powershell
-python "d:\ANTIGRAVITY REPO\01 Projetos\01 - Better Obsydian\02_BIBLIOTECA_SIMPLES\bibliotecario.py" sincronizar
-python "d:\ANTIGRAVITY REPO\01 Projetos\01 - Better Obsydian\02_BIBLIOTECA_SIMPLES\bibliotecario.py" testar
+python "D:\00 - Better Vault (Library)\bibliotecario.py" sincronizar
+python "D:\00 - Better Vault (Library)\bibliotecario.py" testar
 ```
