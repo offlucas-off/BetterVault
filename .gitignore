@@ -1,0 +1,7 @@
+99_LIXEIRA/
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,31 @@
+{
+  "gerado_em": "2026-11-18T12:55:47Z",
+  "metricas": {
+    "total_categorias": 3,
+    "total_livros": 0,
+    "tokens_indice_master": 336,
+    "tokens_medios_capa": 0,
+    "economia_media_pct": 0
+  },
+  "categorias": [
+    {
+      "id": "engenharia-e-codigo",
+      "nome": "Engenharia & Código",
+      "descricao": "Projetos de software, scripts, arquitetura de sistemas, automações, APIs e repositórios de código.",
+      "total": 0
+    },
+    {
+      "id": "midia-e-motion",
+      "nome": "Mídia, Vídeo & Motion",
+      "descricao": "Vídeos com capítulos em minutos, roteiros, edição audiovisual, design, animações e galerias de referência visual.",
+      "total": 0
+    },
+    {
+      "id": "referencias-e-livros",
+      "nome": "Referências, Livros & Estudos",
+      "descricao": "Livros digitais, artigos, PDFs divididos por capítulo, manuais técnicos, pesquisas e notas de estudo.",
+      "total": 0
+    }
+  ],
+  "livros": []
+}
