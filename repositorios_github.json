@@ -14,9 +14,9 @@
       "qtd_skills": 1087,
       "como_chamar_skill": "/api-design, /backend-patterns, /article-writing, /agent-introspection-debugging (e mais 1.083 skills)",
       "instalada": false,
-      "status_atualizacao": "nao_verificado",
+      "status_atualizacao": "atualizado",
       "commits_atras": 0,
-      "ultima_verificacao": null
+      "ultima_verificacao": "2026-11-18T15:32:56+00:00"
     },
     {
       "id": "ui-ux-pro-max-skill",
@@ -30,9 +30,9 @@
       "qtd_skills": 13,
       "como_chamar_skill": "/ui-ux-pro-max, /design, /design-system, /ui-styling, /brand",
       "instalada": false,
-      "status_atualizacao": "nao_verificado",
+      "status_atualizacao": "atualizado",
       "commits_atras": 0,
-      "ultima_verificacao": null
+      "ultima_verificacao": "2026-11-18T15:32:59+00:00"
     },
     {
       "id": "deer-flow",
@@ -46,9 +46,9 @@
       "qtd_skills": 33,
       "como_chamar_skill": "/academic-paper-review, /chart-visualization, /claude-to-deerflow, /bootstrap",
       "instalada": false,
-      "status_atualizacao": "nao_verificado",
+      "status_atualizacao": "atualizado",
       "commits_atras": 0,
-      "ultima_verificacao": null
+      "ultima_verificacao": "2026-11-18T15:33:02+00:00"
     },
     {
       "id": "humanizer",
@@ -78,9 +78,9 @@
       "qtd_skills": 15,
       "como_chamar_skill": "/brainstorming, /executing-plans, /subagent-driven-development, /requesting-code-review",
       "instalada": false,
-      "status_atualizacao": "nao_verificado",
+      "status_atualizacao": "atualizado",
       "commits_atras": 0,
-      "ultima_verificacao": null
+      "ultima_verificacao": "2026-11-18T15:33:04+00:00"
     },
     {
       "id": "mattpocock-skills",
@@ -94,9 +94,25 @@
       "qtd_skills": 39,
       "como_chamar_skill": "/code-review, /diagnosing-bugs, /domain-modeling, /grill-with-docs, /implement-spec",
       "instalada": false,
-      "status_atualizacao": "nao_verificado",
+      "status_atualizacao": "atualizado",
       "commits_atras": 0,
-      "ultima_verificacao": null
+      "ultima_verificacao": "2026-11-18T15:33:05+00:00"
+    },
+    {
+      "id": "rea",
+      "nome": "REA (Reverse Engineer Anything)",
+      "repo_slug": "morluto/rea",
+      "url": "https://github.com/morluto/rea",
+      "pasta_local": "repositorios_github/rea",
+      "forma": "MCP + Skill de Engenharia Reversa",
+      "objetivo": "Servidor MCP e skill para engenharia reversa de binários, apps e comportamento em runtime (integrado ao Ghidra, Frida e Java 21).",
+      "eh_skill": true,
+      "qtd_skills": 5,
+      "como_chamar_skill": "/reverse-engineer-anything (MCP: rea)",
+      "instalada": true,
+      "status_atualizacao": "atualizado",
+      "commits_atras": 0,
+      "ultima_verificacao": "2026-11-18T17:30:52+00:00"
     }
   ]
 }
