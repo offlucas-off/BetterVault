@@ -899,38 +899,12 @@ const FALLBACK_CATALOGO = {
 
     const todosLivros = estado.catalogo.livros || [];
     if (todosLivros.length === 0) {
-      faixa.innerHTML = `
-        <div class="welcome-strip-top">
-          <span class="welcome-badge">✨ Instalação Limpa · Como usar sua Biblioteca em 3 Passos</span>
-          <span class="welcome-hint">Zero materiais pré-carregados — pronta para o seu acervo:</span>
-        </div>
-        <div class="welcome-shortcuts-grid">
-          <button type="button" class="welcome-shortcut-card" data-acao-guardar="true">
-            <span class="welcome-shortcut-icon" aria-hidden="true">1️⃣</span>
-            <div class="welcome-shortcut-text">
-              <strong>1. Guarde um material</strong>
-              <span>Clique aqui ou em "+ Guardar na Biblioteca" para adicionar um livro, vídeo, foto ou código.</span>
-            </div>
-          </button>
-          <div class="welcome-shortcut-card">
-            <span class="welcome-shortcut-icon" aria-hidden="true">2️⃣</span>
-            <div class="welcome-shortcut-text">
-              <strong>2. Leia o resumo de 1 min na Capa</strong>
-              <span>Cada item gera uma Capa leve que explica para que serve sem abrir arquivos pesados.</span>
-            </div>
-          </div>
-          <div class="welcome-shortcut-card">
-            <span class="welcome-shortcut-icon" aria-hidden="true">3️⃣</span>
-            <div class="welcome-shortcut-text">
-              <strong>3. Pule direto para a página ou minuto no Livro Aberto</strong>
-              <span>Use os atalhos de "Ir Direto ao Ponto" para abrir exatamente o trecho que precisa.</span>
-            </div>
-          </div>
-        </div>
-      `;
+      faixa.hidden = true;
+      faixa.innerHTML = "";
       return;
     }
 
+    faixa.hidden = false;
     const destaques = todosLivros.slice(0, 3);
     faixa.innerHTML = `
       <div class="welcome-strip-top">

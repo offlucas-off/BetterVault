@@ -3,599 +3,481 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biblioteca Simples — Suas Estantes, Resumos de 1 Minuto e O Livro Aberto</title>
-  <meta name="description" content="Sua biblioteca digital autônoma e acolhedora: encontre qualquer livro, vídeo, álbum de ideias ou projeto em 3 passos simples.">
+  <title>BetterVault — Mesa de Trabalho Fluida</title>
+  <meta name="description" content="Sua biblioteca digital autônoma e acolhedora: consulte resumos de 1 minuto, favoritos e materiais completos em foco único.">
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-experiencia="simples">
-  <a href="#coluna-capas" class="skip-link">Pular para as Capas dos Materiais</a>
-
-  <!-- ====================================================================
-       ESTRUTURA 1: O BIBLIOTECÁRIO (RECEPCAO ACOLHEDORA + BUSCA + 3 PASSOS)
-       ==================================================================== -->
-  <header class="bibliotecario-header" role="banner">
-    <div class="bibliotecario-top-row">
-      <!-- Identidade da Biblioteca -->
-      <div class="brand-block">
-        <div class="brand-emblem" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
-            <path d="M9 7h6"/>
-            <path d="M9 11h4"/>
-          </svg>
-        </div>
-        <div class="brand-text">
-          <div class="brand-title-row">
-            <h1 class="brand-title">BetterVault</h1>
-            <span class="brand-pill" title="Referência Única Autônoma">Biblioteca</span>
-          </div>
-        </div>
+  <div class="app-shell-c">
+    <!-- ====================================================================
+         RAIL LATERAL MINIMALISTA (68px DESKTOP / TOPBAR COMPACTA <= 640px)
+         ==================================================================== -->
+    <aside class="rail-nav" aria-label="Navegação principal do BetterVault">
+      <div class="rail-brand" title="BetterVault — Biblioteca Local-First">
+        <span class="rail-logo-mark" aria-hidden="true">B</span>
       </div>
 
-      <!-- Barra Central: O Bibliotecário (Recepção em Linguagem Natural) -->
-      <div class="lookup-container" role="search" aria-label="O Bibliotecário — Encontre qualquer material rapidamente">
-        <div class="lookup-input-wrap" id="lookup-wrap">
-          <span class="lookup-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="m21 21-4.3-4.3"/>
-            </svg>
-          </span>
-          <input
-            type="search"
-            id="busca-input"
-            class="lookup-input"
-            placeholder="O que você quer encontrar ou aprender hoje? (Ex: editar vídeo, animar personagem, organizar ideias...)"
-            autocomplete="off"
-            spellcheck="false"
-            aria-label="O que você quer encontrar ou aprender hoje?"
-          >
-          <button type="button" id="btn-limpar-busca" class="lookup-clear-btn" hidden aria-label="Limpar busca">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <path d="M18 6 6 18M6 6l12 12"/>
-            </svg>
-          </button>
-          <kbd class="lookup-kbd" title="Atalho de teclado para pesquisar">Ctrl+K</kbd>
-          <button type="button" id="btn-perguntar" class="lookup-submit-btn" title="Buscar na Biblioteca">
-            <span>Encontrar</span>
-          </button>
-        </div>
-
-        <!-- Sugestões em Linguagem Natural -->
-        <div class="perguntas-strip" aria-label="Sugestões rápidas da biblioteca">
-          <span class="perguntas-label" id="perguntas-label">Comece agora:</span>
-          <div class="perguntas-chips" id="perguntas-rapidas">
-            <!-- Preenchido dinamicamente por app.js -->
-          </div>
-        </div>
-      </div>
-
-      <!-- Ações Globais: + Guardar na Biblioteca, Tema e Ajuda & Modo Avançado -->
-      <div class="header-actions">
+      <nav class="rail-tabs" id="nav-abas-principais" role="tablist" aria-label="Seções principais">
         <button
           type="button"
-          id="btn-abrir-guardar"
-          class="btn-guardar-header"
-          title="Guardar um novo Livro, Vídeo, Galeria de Fotos ou Código na Biblioteca em 3 passos simples"
+          class="rail-btn is-active"
+          id="tab-aba-livraria"
+          data-aba="livraria"
+          role="tab"
+          aria-selected="true"
+          title="Livraria — Buscar e ler materiais"
+          aria-label="Livraria"
         >
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          <span>+ Guardar na Biblioteca</span>
-        </button>
-
-        <button
-          type="button"
-          id="btn-modo-markdown"
-          class="action-btn so-tecnico"
-          aria-pressed="false"
-          title="Alternar entre Visão Estante (Capas) e Visão Markdown Puro (.md reais do disco)"
-        >
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="16" y1="13" x2="8" y2="13"/>
-            <line x1="16" y1="17" x2="8" y2="17"/>
-          </svg>
-          <span id="label-modo-markdown">Ver .md Puro</span>
-        </button>
-
-        <button
-          type="button"
-          id="btn-tema"
-          class="action-btn icon-only"
-          aria-label="Alternar tema claro ou escuro"
-          title="Alternar tema visual (Escuro Acolhedor / Papel Claro)"
-        >
-          <svg id="icone-tema" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="4"/>
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
-          </svg>
-        </button>
-
-        <button
-          type="button"
-          id="btn-toggle-rail"
-          class="action-btn rail-toggle-btn"
-          aria-expanded="false"
-          aria-controls="rail-direito"
-          title="Abrir painel de Ajuda Rápida e ativar/desativar o Modo Técnico / IA"
-        >
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-            <line x1="12" y1="17" x2="12.01" y2="17"/>
-          </svg>
-          <span>Ajuda &amp; Modo Avançado</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Barra de Abas Principais (Livraria | Favoritos | Skills & Agentes) -->
-    <div class="header-tabs-row">
-      <nav class="primary-tabs" id="nav-abas-principais" role="tablist" aria-label="Navegação principal do BetterVault">
-        <button type="button" role="tab" aria-selected="true" class="primary-tab-btn is-active" id="tab-aba-livraria" data-aba="livraria">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
           </svg>
-          <span>Livraria</span>
+          <span class="rail-btn-label">Livraria</span>
         </button>
-        <button type="button" role="tab" aria-selected="false" class="primary-tab-btn" id="tab-aba-favoritos" data-aba="favoritos">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+
+        <button
+          type="button"
+          class="rail-btn"
+          id="tab-aba-favoritos"
+          data-aba="favoritos"
+          role="tab"
+          aria-selected="false"
+          title="Favoritos — Materiais fixados"
+          aria-label="Favoritos"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
-          <span>Favoritos</span>
-          <span class="tab-count-badge" id="badge-count-favoritos">0</span>
+          <span class="rail-btn-label">Favoritos</span>
+          <span class="rail-badge" id="badge-count-favoritos">0</span>
         </button>
-        <button type="button" role="tab" aria-selected="false" class="primary-tab-btn" id="tab-aba-skills" data-aba="skills">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 2a4 4 0 0 1 4 4v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2V6a4 4 0 0 1 4-4z"/>
-            <circle cx="9" cy="13" r="1"/>
-            <circle cx="15" cy="13" r="1"/>
+
+        <button
+          type="button"
+          class="rail-btn"
+          id="tab-aba-skills"
+          data-aba="skills"
+          role="tab"
+          aria-selected="false"
+          title="Skills &amp; Agentes — Guia de inserção para IAs"
+          aria-label="Skills e IA"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
           </svg>
-          <span>Skills &amp; Agentes</span>
+          <span class="rail-btn-label">Skills</span>
         </button>
       </nav>
 
-      <!-- Medidor Sutil de Tempo Economizado -->
-      <div class="efficiency-meter" id="medidor-eficiencia" aria-live="polite">
-        <div class="efficiency-text so-simples">
-          <span class="eff-human-label">
-            Resumo: <strong id="tempo-resumo-capa">1 min</strong>
-            <span class="eff-sep">· Completo: <strong id="tempo-material-completo">—</strong></span>
-          </span>
-        </div>
-        <div class="efficiency-text so-tecnico">
-          <span class="eff-read">Capa: <strong id="eff-tokens-capa">0 tokens</strong></span>
-          <span class="eff-sep">vs.</span>
-          <span class="eff-open">Aberto: <strong id="eff-tokens-livro">0 tokens</strong></span>
-          <span class="eff-badge" id="eff-pct-badge">0% poupado</span>
-        </div>
-        <div class="efficiency-bar-track so-tecnico" aria-hidden="true">
-          <div class="efficiency-bar-fill" id="eff-bar-fill" style="width: 0%"></div>
-        </div>
-      </div>
-    </div>
+      <div class="rail-spacer"></div>
 
-    <!-- Banner de Resposta Acolhedora do Bibliotecário -->
-    <div class="bibliotecario-answer-banner" id="resposta-bibliotecario" hidden aria-live="polite">
-      <div class="answer-left">
-        <span class="answer-badge">Recomendação do Bibliotecário</span>
-        <p class="answer-summary" id="answer-summary-text"></p>
-      </div>
-      <div class="answer-actions">
-        <button type="button" id="btn-abrir-coordenada-sugerida" class="btn-primary-sm">
-          <span id="btn-abrir-coordenada-label">Abrir neste ponto do material</span>
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <div class="rail-actions">
+        <button
+          type="button"
+          class="rail-btn rail-btn-primary"
+          id="btn-abrir-guardar"
+          title="Guardar novo material na biblioteca"
+          aria-label="Guardar novo material"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          <span class="rail-btn-label">Guardar</span>
         </button>
-        <button type="button" id="btn-fechar-resposta" class="btn-ghost-sm" aria-label="Fechar recomendação">Fechar</button>
+
+        <button
+          type="button"
+          class="rail-btn so-tecnico"
+          id="btn-modo-markdown"
+          aria-pressed="false"
+          title="Alternar entre Leitura Visual e Código Markdown (.md)"
+          aria-label="Alternar Modo Markdown"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+          </svg>
+          <span class="rail-btn-label" id="label-modo-markdown">Markdown</span>
+        </button>
+
+        <button
+          type="button"
+          class="rail-btn"
+          id="btn-tema"
+          aria-pressed="false"
+          title="Alternar tema claro / escuro"
+          aria-label="Alternar tema"
+        >
+          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <span class="rail-btn-label">Tema</span>
+        </button>
+
+        <button
+          type="button"
+          class="rail-btn"
+          id="btn-toggle-rail"
+          aria-expanded="false"
+          aria-controls="rail-direito"
+          title="Ajuda, atalhos e Modo Técnico / IA"
+          aria-label="Ajuda e Modo Avançado"
+        >
+          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <span class="rail-btn-label">Ajustes</span>
+        </button>
       </div>
-    </div>
-  </header>
+    </aside>
 
-  <!-- Navegador de Colunas para Telas Compactas / Mobile (375px sem scroll horizontal) -->
-  <nav class="mobile-col-tabs" id="mobile-col-tabs" aria-label="Alternar seção em telas compactas">
-    <button type="button" class="mobile-tab-btn" data-col="master">
-      <span>1. Estantes</span>
-    </button>
-    <button type="button" class="mobile-tab-btn is-active" data-col="capas">
-      <span>2. Capas (<span id="mob-count-capas">0</span>)</span>
-    </button>
-    <button type="button" class="mobile-tab-btn" data-col="contracapa">
-      <span>3. Resumo</span>
-    </button>
-  </nav>
+    <!-- ====================================================================
+         PALCO PRINCIPAL CENTRALIZADO (MESA DE TRABALHO FLUIDA)
+         ==================================================================== -->
+    <main class="stage-shell-c">
+      <!-- ABA 1: LIVRARIA (FOCO ÚNICO) -->
+      <section class="aba-panel stage-c" id="painel-aba-livraria" role="tabpanel" aria-labelledby="tab-aba-livraria">
+        <header class="stage-hero-c">
+          <div class="stage-hero-top">
+            <div>
+              <span class="stage-kicker">BetterVault · Mesa de Foco Único</span>
+              <h1 class="stage-title-c">O que você quer consultar hoje?</h1>
+            </div>
+            <!-- Medidor compacto de economia (visível apenas no Modo Técnico / IA) -->
+            <div class="eff-pill-c so-tecnico" id="medidor-eficiencia" title="Comparação entre ler a Capa e ler o Material Completo">
+              <span>Resumo: <strong id="tempo-resumo-capa">30 s</strong> (<span id="eff-tokens-capa">0</span> tk)</span>
+              <span aria-hidden="true">·</span>
+              <span>Completo: <strong id="tempo-material-completo">0 min</strong> (<span id="eff-tokens-livro">0</span> tk)</span>
+              <span class="eff-badge" id="eff-pct-badge">0% leve</span>
+              <div class="eff-track-mini" aria-hidden="true"><div class="eff-fill" id="eff-bar-fill" style="width: 0%"></div></div>
+            </div>
+          </div>
 
-  <!-- ====================================================================
-       ESTRUTURA 2: A BIBLIOTECA E AS CAPAS DOS MATERIAIS (3 COLUNAS)
-       ==================================================================== -->
-  <div class="workspace-shell">
-    <!-- PAINEL DA ABA 1: LIVRARIA (SUB-BARRA DE FILTROS + 3 COLUNAS) -->
-    <div class="tab-view-livraria" id="painel-aba-livraria">
-      <div class="livraria-subbar">
-        <nav class="midia-filters" id="filtros-midia" aria-label="Filtrar materiais por formato">
-          <button type="button" class="filter-chip is-active" data-tipo="todos">
-            <span>Todos</span>
-            <span class="filter-count" id="count-todos">0</span>
-          </button>
-          <button type="button" class="filter-chip" data-tipo="pdf-livro">
-            <span>Livros &amp; PDFs</span>
-          </button>
-          <button type="button" class="filter-chip" data-tipo="video">
-            <span>Vídeos &amp; Aulas</span>
-          </button>
-          <button type="button" class="filter-chip" data-tipo="fotos-ref">
-            <span>Fotos &amp; Ideias</span>
-          </button>
-          <button type="button" class="filter-chip" data-tipo="codigo-fonte">
-            <span>Códigos</span>
-          </button>
-          <button type="button" class="filter-chip" data-tipo="github-repo">
-            <span>GitHub</span>
-          </button>
+          <!-- Command Bar Elevada -->
+          <div class="command-bar-c" id="lookup-wrap" role="search" aria-label="Buscar ou perguntar para a biblioteca">
+            <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+            <input
+              type="text"
+              id="busca-input"
+              class="command-input-c"
+              placeholder="Pergunte algo ou busque por assunto, capítulo, vídeo ou código... (Ctrl+K)"
+              autocomplete="off"
+              aria-label="Pesquisar na biblioteca"
+            >
+            <button type="button" id="btn-limpar-busca" class="icon-clear-btn" title="Limpar busca (Esc)" aria-label="Limpar busca" hidden>
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+            <button type="button" id="btn-perguntar" class="command-btn-c">
+              <span>Encontrar</span>
+            </button>
+          </div>
+
+          <!-- Sugestões rápidas -->
+          <div class="quick-row-c" aria-label="Sugestões rápidas de consulta">
+            <span class="quick-label-c" id="perguntas-label">Sugestões:</span>
+            <div class="quick-chips" id="perguntas-rapidas">
+              <button type="button" class="quick-chip" data-query="video">🎬 Vídeos e aulas</button>
+              <button type="button" class="quick-chip" data-query="pdf">📘 Livros e PDFs</button>
+              <button type="button" class="quick-chip" data-query="codigo">💻 Código e scripts</button>
+            </div>
+          </div>
+        </header>
+
+        <!-- Barra de Filtros Compacta: Estantes + Formatos -->
+        <section class="filters-strip-c" aria-label="Filtros de estantes e formatos">
+          <div class="estantes-bar-c" id="coluna-master">
+            <div class="estantes-bar-head">
+              <span class="strip-label-c">Estantes</span>
+              <div class="master-view-tabs so-tecnico" role="tablist" aria-label="Modo de visualização do índice">
+                <button type="button" class="mini-tab is-active" id="tab-visao-estante" role="tab" aria-selected="true">Estantes</button>
+                <button type="button" class="mini-tab" id="tab-visao-md" role="tab" aria-selected="false">Ver .md</button>
+              </div>
+            </div>
+
+            <div class="estantes-pills-wrap" id="painel-estantes-master">
+              <div class="estantes-pills-list" id="lista-categorias">
+                <!-- Preenchido por app.js -->
+              </div>
+            </div>
+
+            <div class="raw-md-panel so-tecnico" id="painel-md-master" hidden>
+              <div class="code-viewer-bar">
+                <code>00_MASTER_INDICE.md</code>
+                <button type="button" class="btn-copy-xs" id="btn-copiar-md-master">Copiar</button>
+              </div>
+              <pre class="raw-md-pre"><code id="codigo-md-master"></code></pre>
+            </div>
+          </div>
+
+          <div class="formatos-bar-c" id="filtros-midia" role="group" aria-label="Filtrar por formato de material">
+            <button type="button" class="media-pill is-active" data-midia="todos">Todos <span class="pill-count" id="count-todos">0</span></button>
+            <button type="button" class="media-pill" data-midia="pdf-livro">📘 Livros</button>
+            <button type="button" class="media-pill" data-midia="video">🎬 Vídeos</button>
+            <button type="button" class="media-pill" data-midia="fotos-ref">🖼️ Fotos</button>
+            <button type="button" class="media-pill" data-midia="codigo-fonte">💻 Códigos</button>
+          </div>
+        </section>
+
+        <!-- Caminho em 3 Saltos (Modo Técnico / IA) -->
+        <nav class="jump-bar so-tecnico" id="caminho-saltos" aria-label="Caminho da pesquisa em 3 saltos">
+          <div class="salto-step is-active" id="salto-1">
+            <span class="salto-num">1</span>
+            <span class="salto-label">Estante: <strong id="salto-1-nome">Todas</strong></span>
+            <span class="salto-tokens" id="salto-1-tokens">~0 tk</span>
+          </div>
+          <span class="salto-arrow" aria-hidden="true">→</span>
+          <div class="salto-step" id="salto-2">
+            <span class="salto-num">2</span>
+            <span class="salto-label">Capa: <strong id="salto-2-nome">Nenhuma</strong></span>
+            <span class="salto-tokens" id="salto-2-tokens">~0 tk</span>
+          </div>
+          <span class="salto-arrow" aria-hidden="true">→</span>
+          <div class="salto-step" id="salto-3">
+            <span class="salto-num">3</span>
+            <span class="salto-label">Livro Aberto: <strong id="salto-3-nome">Fechado</strong></span>
+            <span class="salto-tokens" id="salto-3-tokens">0 tk</span>
+          </div>
+          <span class="salto-arrow" aria-hidden="true">→</span>
+          <div class="salto-step" id="salto-4" hidden>
+            <span class="salto-num">✓</span>
+            <span class="salto-label">Ponto: <strong id="salto-4-nome">—</strong></span>
+          </div>
         </nav>
 
-        <div class="saltos-tracker" id="caminho-saltos" aria-label="Trilha de navegação em 3 passos">
-          <button type="button" class="salto-step is-visited" id="salto-1" data-salto="master">
-            <span class="salto-num">1</span>
-            <span class="salto-name" id="salto-1-nome">Estante</span>
-            <span class="salto-tokens so-tecnico" id="salto-1-tokens">0 tok</span>
-          </button>
-          <span class="salto-arrow" aria-hidden="true">→</span>
-          <button type="button" class="salto-step is-visited" id="salto-2" data-salto="categoria">
-            <span class="salto-num">2</span>
-            <span class="salto-name" id="salto-2-nome">Capa (1 min)</span>
-            <span class="salto-tokens so-tecnico" id="salto-2-tokens">0 tok</span>
-          </button>
-          <span class="salto-arrow" aria-hidden="true">→</span>
-          <button type="button" class="salto-step is-current" id="salto-3" data-salto="capa">
-            <span class="salto-num">3</span>
-            <span class="salto-name" id="salto-3-nome">Ponto Exato</span>
-            <span class="salto-tokens so-tecnico" id="salto-3-tokens">0 tok</span>
-          </button>
-          <span class="salto-arrow so-tecnico" aria-hidden="true">→</span>
-          <button type="button" class="salto-step is-optional so-tecnico" id="salto-4" data-salto="coordenada">
-            <span class="salto-num">4</span>
-            <span class="salto-name" id="salto-4-nome">[Opcional] Coordenada</span>
-          </button>
+        <!-- Resposta Direta da Busca -->
+        <section class="answer-banner-c" id="resposta-bibliotecario" aria-live="polite" hidden>
+          <div class="answer-banner-top">
+            <div class="answer-badge-row">
+              <span class="answer-badge">✨ Encontrado na biblioteca</span>
+              <span class="answer-route-pill so-tecnico" id="caminho-subindice-pill"></span>
+            </div>
+            <button type="button" id="btn-fechar-resposta" class="icon-close-btn" aria-label="Fechar resultado da busca">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <p class="answer-summary" id="answer-summary-text"></p>
+          <div class="answer-actions">
+            <button type="button" id="btn-abrir-coordenada-sugerida" class="btn-primary-c">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              <span id="btn-abrir-coordenada-label">Abrir direto no ponto</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Tabs mobile legadas mantidas escondidas no desktop/redesigned para compatibilidade -->
+        <div class="mobile-col-tabs" id="mobile-col-tabs" role="tablist" aria-label="Alternar seção" hidden>
+          <button type="button" class="mob-tab is-active" data-mob-col="master" role="tab" aria-selected="true">Estantes</button>
+          <button type="button" class="mob-tab" data-mob-col="capas" role="tab" aria-selected="false">Capas <span id="mob-count-capas">0</span></button>
+          <button type="button" class="mob-tab" data-mob-col="contracapa" role="tab" aria-selected="false">Resumo</button>
         </div>
-      </div>
 
-      <main class="biblioteca-grid" id="biblioteca-grid" data-active-mobile-col="capas">
-
-      <!-- COLUNA 1: SUAS ESTANTES -->
-      <section class="coluna coluna-master" id="coluna-master" aria-labelledby="titulo-col-master">
-        <header class="coluna-header">
-          <div class="coluna-header-top">
-            <h2 class="coluna-title" id="titulo-col-master">1. Suas Estantes</h2>
-            <code class="file-path-pill so-tecnico" title="Arquivo raiz de navegação">INDICE_MASTER.md</code>
-          </div>
-          <p class="coluna-desc">Escolha uma estante temática para explorar seus livros, vídeos, fotos e projetos.</p>
-
-          <!-- Alternador interno: Estantes vs Markdown Puro (visível apenas no Modo Técnico) -->
-          <div class="segmented-switch so-tecnico" role="tablist" aria-label="Modo de visualização do Índice Master">
-            <button
-              type="button"
-              role="tab"
-              aria-selected="true"
-              class="seg-btn is-active"
-              id="tab-visao-estante"
-              data-master-view="estante"
-            >
-              Visão Estante (Capas)
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected="false"
-              class="seg-btn"
-              id="tab-visao-md"
-              data-master-view="markdown"
-            >
-              Markdown Puro (.md)
-            </button>
-          </div>
-        </header>
-
-        <div class="coluna-body" id="corpo-col-master">
-          <!-- Lista de Estantes / Categorias -->
-          <div id="painel-estantes-master">
-            <ul class="estantes-list" id="lista-categorias" role="listbox" aria-label="Suas Estantes por tema">
-              <!-- Preenchido por app.js -->
-            </ul>
-
-            <!-- Painel Amigável: Visão Geral do Acervo por Tipo -->
-            <div class="acervo-overview-box" id="painel-visao-geral-acervo">
-              <div class="acervo-overview-header">
-                <h3 class="mini-box-title">Visão Geral do Acervo</h3>
-                <span class="acervo-sub">Clique para filtrar por formato</span>
+        <!-- ================================================================
+             ÁREA DE FOCO PRINCIPAL: RESULT CARD (CONTRACAPA) + LISTA DE CAPAS
+             ================================================================ -->
+        <div class="focus-stack-c" id="biblioteca-grid">
+          <!-- Cartão de Foco Ativo (Contracapa / Boas-vindas) -->
+          <section class="focus-result-card" id="coluna-contracapa" aria-label="Resumo de 1 minuto e pontos-chave">
+            <!-- Estado Vazio / Boas-vindas (0 livros) -->
+            <div class="welcome-card-c" id="estado-vazio-contracapa">
+              <div class="welcome-badge-c">✨ Instalação Limpa · Pronto para Começar</div>
+              <h2 class="welcome-title-c">Sua mesa de trabalho está pronta e vazia</h2>
+              <p class="welcome-lead-c">
+                O BetterVault guarda seus <strong>livros, vídeos, imagens e códigos</strong> em 2 camadas:
+                primeiro uma <strong>Capa de 1 minuto</strong> para consulta rápida, e depois o <strong>Livro Aberto</strong> com capítulos e arquivos completos.
+              </p>
+              <div class="welcome-actions-c">
+                <button type="button" class="btn-primary-c" id="btn-guardar-contracapa-vazia">
+                  + Guardar Primeiro Material
+                </button>
               </div>
-              <div class="acervo-type-grid">
-                <button type="button" class="acervo-type-card" data-acervo-filtro="pdf-livro">
-                  <span class="acervo-emoji" aria-hidden="true">📘</span>
-                  <div class="acervo-type-info">
-                    <span class="acervo-type-name">Livros &amp; PDFs</span>
-                    <strong class="acervo-type-count" id="acervo-count-livros">0 itens</strong>
-                  </div>
-                </button>
-                <button type="button" class="acervo-type-card" data-acervo-filtro="video">
-                  <span class="acervo-emoji" aria-hidden="true">🎬</span>
-                  <div class="acervo-type-info">
-                    <span class="acervo-type-name">Vídeos &amp; Aulas</span>
-                    <strong class="acervo-type-count" id="acervo-count-videos">0 itens</strong>
-                  </div>
-                </button>
-                <button type="button" class="acervo-type-card" data-acervo-filtro="fotos-ref">
-                  <span class="acervo-emoji" aria-hidden="true">🖼️</span>
-                  <div class="acervo-type-info">
-                    <span class="acervo-type-name">Fotos &amp; Ideias</span>
-                    <strong class="acervo-type-count" id="acervo-count-fotos">0 itens</strong>
-                  </div>
-                </button>
-                <button type="button" class="acervo-type-card" data-acervo-filtro="codigo-fonte">
-                  <span class="acervo-emoji" aria-hidden="true">💻</span>
-                  <div class="acervo-type-info">
-                    <span class="acervo-type-name">Códigos &amp; Projetos</span>
-                    <strong class="acervo-type-count" id="acervo-count-codigos">0 itens</strong>
-                  </div>
-                </button>
+              <div class="welcome-steps-c">
+                <div class="welcome-step-item">
+                  <strong>1. Escolha ou busque</strong>
+                  <span>Use as estantes acima ou a barra de busca para ir direto ao ponto.</span>
+                </div>
+                <div class="welcome-step-item">
+                  <strong>2. Leia a Capa em 1 min</strong>
+                  <span>Veja o resumo e pule para a página, minuto ou linha exata.</span>
+                </div>
+                <div class="welcome-step-item">
+                  <strong>3. Abra o Livro Aberto</strong>
+                  <span>Leia o material completo com visualizador multimodal sem sair do foco.</span>
+                </div>
               </div>
             </div>
 
-            <!-- Resumo Arquitetural Técnico (Apenas Modo Técnico / IA) -->
-            <div class="arquitetura-mini-box so-tecnico">
-              <h3 class="mini-box-title">Telemetria de Contexto (IA)</h3>
-              <dl class="telemetry-dl">
-                <div class="telemetry-row">
-                  <dt>Salto 1 (<code>INDICE_MASTER.md</code>)</dt>
-                  <dd id="metric-tokens-master">~460 tok</dd>
+            <!-- Conteúdo da Capa Ativa -->
+            <div id="ficha-conteudo-estruturado" hidden>
+              <div class="result-head-c">
+                <div class="result-badges-c">
+                  <span class="media-badge" id="ficha-tipo-amigavel">📘 Livro / PDF</span>
+                  <span class="tempo-badge" id="ficha-tempo-pill">📖 Leitura: 30 s</span>
+                  <span class="book-id-badge so-tecnico" id="ficha-id">LIV-001</span>
+                  <span class="tokens-badge so-tecnico" id="ficha-tokens-badge">~0 tk</span>
                 </div>
-                <div class="telemetry-row">
-                  <dt>Média por Capa (<code>capas/*.md</code>)</dt>
-                  <dd id="metric-tokens-capa">~425 tok</dd>
+                <div class="contracapa-actions-header" id="contracapa-acoes-header">
+                  <button type="button" class="btn-favorito-toggle" id="btn-favoritar-contracapa" aria-pressed="false" title="Fixar este material nos Favoritos">
+                    <span class="fav-star" aria-hidden="true">☆</span>
+                    <span id="label-favoritar-contracapa">Favoritar</span>
+                  </button>
+                  <button type="button" class="btn-copy-xs so-tecnico" id="btn-toggle-md-capa">Ver .md</button>
                 </div>
-                <div class="telemetry-row">
-                  <dt>Economia vs. Livro Aberto</dt>
-                  <dd class="text-emerald" id="metric-economia-media">98%</dd>
-                </div>
-                <div class="telemetry-row">
-                  <dt>Fonte de Dados</dt>
-                  <dd id="metric-fonte-dados"><code>catalogo.json</code></dd>
-                </div>
-              </dl>
-            </div>
-          </div>
+              </div>
 
-          <!-- Visão Markdown Puro do Índice Master e Sub-Índice -->
-          <div id="painel-md-master" hidden>
-            <div class="raw-md-Selector">
-              <label for="select-md-arquivo" class="sr-only">Escolher arquivo Markdown</label>
-              <select id="select-md-arquivo" class="md-select">
-                <option value="master">INDICE_MASTER.md (Salto 1)</option>
-                <option value="categoria">categorias/&lt;atual&gt;.md (Salto 2)</option>
-                <option value="capa">capas/&lt;atual&gt;.md (Salto 3)</option>
-              </select>
-              <button type="button" id="btn-copiar-md-master" class="btn-copy-xs">Copiar .md</button>
+              <h2 class="result-title-c" id="ficha-titulo">Título do Material</h2>
+              <p class="result-subtitle-c" id="ficha-subtitulo"></p>
+
+              <!-- Para que serve? -->
+              <div class="layman-box-c">
+                <div class="layman-label-c">💡 Para que serve este material</div>
+                <p class="layman-text-c" id="ficha-explicacao-leiga"></p>
+              </div>
+
+              <!-- Resumo da Capa -->
+              <div class="summary-block-c">
+                <h3 class="section-mini-title-c">📋 Resumo rápido (1 minuto)</h3>
+                <p class="summary-text-c" id="ficha-resumo"></p>
+              </div>
+
+              <!-- Ir Direto ao Ponto (Jump Pills) -->
+              <div class="jump-section-c">
+                <div class="jump-head-c">
+                  <h3 class="section-mini-title-c">🎯 Ir Direto ao Ponto</h3>
+                  <span class="count-pill-c" id="ficha-count-coordenadas">0 pontos</span>
+                </div>
+                <div class="coordinates-list-c" id="lista-coordenadas">
+                  <!-- Preenchido por app.js -->
+                </div>
+              </div>
+
+              <!-- CTA Abrir Livro Aberto -->
+              <div class="cta-open-row-c" id="card-cta-livro-aberto">
+                <div class="cta-open-info-c">
+                  <strong>Quer ver o material completo?</strong>
+                  <span id="ficha-meta-arquivos">Arquivos, imagens, capítulos e código explicados.</span>
+                </div>
+                <button type="button" class="btn-primary-c" id="btn-abrir-livro-aberto">
+                  <span>Abrir Livro Aberto</span>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </button>
+              </div>
+
+              <!-- Quando usar -->
+              <div class="triggers-block-c">
+                <span class="strip-label-c">Quando usar:</span>
+                <div class="triggers-wrap" id="ficha-gatilhos"></div>
+              </div>
+
+              <!-- Arquivos e caminhos técnicos (Modo Técnico) -->
+              <div class="mini-files-section so-tecnico">
+                <div class="mini-files-row">
+                  <span>Capa: <code id="ficha-caminho-capa"></code></span>
+                  <button type="button" class="btn-copy-xs" id="btn-copiar-caminho-capa">Copiar</button>
+                </div>
+                <div class="mini-files-row">
+                  <span>Pacote: <code id="ficha-caminho-livro"></code></span>
+                </div>
+                <ul class="mini-files-list" id="ficha-arquivos-mini"></ul>
+              </div>
             </div>
-            <pre class="raw-md-pre"><code id="codigo-md-master"></code></pre>
-          </div>
+
+            <!-- Visão Markdown Bruto da Capa (Modo Técnico) -->
+            <div class="raw-md-panel so-tecnico" id="ficha-conteudo-md" hidden>
+              <div class="code-viewer-bar">
+                <code>Capa (.md)</code>
+              </div>
+              <pre class="raw-md-pre"><code id="codigo-md-capa"></code></pre>
+            </div>
+          </section>
+
+          <!-- Grade Limpa de Materiais da Estante -->
+          <section class="shelf-section-c" id="coluna-capas" aria-label="Materiais da estante">
+            <div class="shelf-head-c">
+              <div>
+                <h2 class="shelf-title-c" id="titulo-col-capas">Capas da Estante</h2>
+              </div>
+              <span class="count-pill-c" id="contagem-capas-visiveis">0</span>
+            </div>
+
+            <!-- Destaques recentes (oculto quando vazio) -->
+            <div class="destaques-strip-c" id="faixa-destaques-biblioteca" hidden></div>
+
+            <!-- Grade de Capas -->
+            <div class="covers-grid-c" id="grade-capas"></div>
+
+            <!-- Estado Vazio das Capas -->
+            <div class="empty-shelf-c" id="estado-vazio-capas" hidden>
+              <h3 id="titulo-vazio-capas">Nenhum material encontrado</h3>
+              <p id="desc-vazio-capas">Você ainda não guardou materiais nesta estante ou filtro.</p>
+              <div class="empty-shelf-actions">
+                <button type="button" class="btn-primary-c" id="btn-guardar-primeiro-vazio">+ Guardar Novo Material</button>
+                <button type="button" class="btn-ghost-c" id="btn-resetar-filtros">Mostrar Tudo</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Visão Geral do Acervo (Compacta / Técnica) -->
+          <section class="overview-strip-c so-tecnico" id="painel-visao-geral-acervo" aria-label="Resumo do acervo">
+            <div class="overview-item">
+              <strong id="acervo-count-livros">0</strong>
+              <span>Livros/PDFs</span>
+            </div>
+            <div class="overview-item">
+              <strong id="acervo-count-videos">0</strong>
+              <span>Vídeos</span>
+            </div>
+            <div class="overview-item">
+              <strong id="acervo-count-fotos">0</strong>
+              <span>Fotos</span>
+            </div>
+            <div class="overview-item">
+              <strong id="acervo-count-codigos">0</strong>
+              <span>Códigos</span>
+            </div>
+          </section>
         </div>
       </section>
 
-      <!-- COLUNA 2: CAPAS NA ESTANTE + FAIXA DE BOAS-VINDAS / DESTAQUES -->
-      <section class="coluna coluna-capas" id="coluna-capas" aria-labelledby="titulo-col-capas" tabindex="-1">
-        <header class="coluna-header">
-          <div class="coluna-header-top">
-            <div>
-              <h2 class="coluna-title" id="titulo-col-capas">2. Capas na Estante — Todos os Materiais</h2>
-              <p class="coluna-desc" id="desc-col-capas">Clique em uma Capa para ler para que serve, o resumo de 1 minuto e os atalhos na Coluna 3.</p>
-            </div>
-            <div class="capas-header-meta">
-              <code class="file-path-pill so-tecnico" id="caminho-subindice-pill">categorias/*.md</code>
-              <span class="count-pill" id="contagem-capas-visiveis">0 Materiais</span>
-            </div>
-          </div>
-        </header>
-
-        <div class="coluna-body" id="corpo-col-capas">
-          <!-- Faixa de Boas-Vindas / Destaques da Biblioteca (100% dinâmica em app.js) -->
-          <div class="welcome-strip" id="faixa-destaques-biblioteca" aria-label="Guia rápido e destaques da Biblioteca">
-            <div class="welcome-strip-top">
-              <span class="welcome-badge">✨ Instalação Limpa · Como usar sua Biblioteca em 3 Passos</span>
-              <span class="welcome-hint">Zero materiais pré-carregados — pronta para o seu acervo:</span>
-            </div>
-            <div class="welcome-shortcuts-grid">
-              <button type="button" class="welcome-shortcut-card" data-acao-guardar="true">
-                <span class="welcome-shortcut-icon" aria-hidden="true">1️⃣</span>
-                <div class="welcome-shortcut-text">
-                  <strong>1. Guarde um material</strong>
-                  <span>Clique aqui ou em "+ Guardar na Biblioteca" para adicionar um livro, vídeo, foto ou código.</span>
-                </div>
-              </button>
-              <div class="welcome-shortcut-card">
-                <span class="welcome-shortcut-icon" aria-hidden="true">2️⃣</span>
-                <div class="welcome-shortcut-text">
-                  <strong>2. Leia o resumo de 1 min na Capa</strong>
-                  <span>Cada item gera uma Capa leve que explica para que serve sem abrir arquivos pesados.</span>
-                </div>
-              </div>
-              <div class="welcome-shortcut-card">
-                <span class="welcome-shortcut-icon" aria-hidden="true">3️⃣</span>
-                <div class="welcome-shortcut-text">
-                  <strong>3. Pule direto para a página ou minuto no Livro Aberto</strong>
-                  <span>Use os atalhos de "Ir Direto ao Ponto" para abrir exatamente o trecho que precisa.</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Grade de Capas Ilustradas -->
-          <div class="capas-grid" id="grade-capas" role="list" aria-label="Capas de materiais guardados na biblioteca">
-            <!-- Preenchido por app.js -->
-          </div>
-
-          <!-- Estado Vazio da Estante (Instalação Limpa ou Busca/Filtro sem Resultados) -->
-          <div class="empty-state" id="estado-vazio-capas">
-            <p class="empty-title" id="titulo-vazio-capas">Sua estante está pronta e limpa!</p>
-            <p class="empty-desc" id="desc-vazio-capas">Nenhum material pré-preenchido foi carregado. Guarde seu primeiro livro, vídeo, álbum de referências ou código para começar sua biblioteca.</p>
-            <div class="empty-actions">
-              <button type="button" id="btn-guardar-primeiro-vazio" class="btn-guardar-header">+ Guardar Primeiro Material na Biblioteca</button>
-              <button type="button" id="btn-resetar-filtros" class="btn-primary-sm" hidden>Mostrar Todos os Materiais</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- COLUNA 3: RESUMO DA CAPA & ÍNDICE RÁPIDO (A CONTRACAPA) -->
-      <section class="coluna coluna-contracapa" id="coluna-contracapa" aria-labelledby="titulo-col-contracapa">
-        <header class="coluna-header">
-          <div class="coluna-header-top">
-            <div class="contracapa-id-group">
-              <span class="section-step-pill" id="titulo-col-contracapa">3. Resumo da Capa &amp; Índice Rápido</span>
-              <span class="media-type-badge" id="ficha-tipo-amigavel" hidden>📘 Livro / PDF</span>
-              <span class="book-id-badge so-tecnico" id="ficha-id" hidden>LIV-001</span>
-              <code class="file-path-pill so-tecnico" id="ficha-caminho-capa" hidden>capas/LIV-001.md</code>
-            </div>
-            <div class="contracapa-header-btns" id="contracapa-acoes-header" hidden>
-              <button type="button" id="btn-favoritar-contracapa" class="btn-fav-star" aria-pressed="false" title="Fixar nos Favoritos">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                </svg>
-                <span id="label-favoritar-contracapa">Favoritar</span>
-              </button>
-              <button type="button" id="btn-copiar-caminho-capa" class="btn-copy-xs so-tecnico" title="Copiar caminho do arquivo da Capa">
-                Copiar Caminho
-              </button>
-              <button type="button" id="btn-toggle-md-capa" class="btn-copy-xs so-tecnico" aria-pressed="false" title="Ver o arquivo Markdown bruto desta Capa">
-                .md da Capa
-              </button>
-            </div>
-          </div>
-          <h2 class="contracapa-book-title" id="ficha-titulo">Resumo da Capa &amp; Ir Direto ao Ponto</h2>
-          <p class="contracapa-book-subtitle" id="ficha-subtitulo">Selecione ou guarde um material para visualizar o resumo de 1 minuto.</p>
-        </header>
-
-        <div class="coluna-body" id="corpo-col-contracapa">
-          <!-- Estado Vazio Acolhedor da Coluna 3 (Quando livros.length === 0) -->
-          <div class="empty-state" id="estado-vazio-contracapa">
-            <p class="empty-title">Nenhum material selecionado ainda</p>
-            <p class="empty-desc">Nenhum material selecionado ainda. Assim que você guardar seu primeiro livro, vídeo, foto ou código, o resumo de 1 minuto e o índice 'Ir Direto ao Ponto' aparecerão aqui.</p>
-            <button type="button" id="btn-guardar-contracapa-vazia" class="btn-guardar-header">+ Guardar na Biblioteca</button>
-          </div>
-
-          <!-- Card Principal Convidativo para Abrir O Livro Aberto -->
-          <div class="open-book-cta-card" id="card-cta-livro-aberto" hidden>
-            <div class="cta-card-info">
-              <span class="cta-card-label">📖 Precisa ver o conteúdo completo?</span>
-              <span class="cta-card-meta" id="ficha-meta-arquivos">3 arquivos incluídos · ~25 min de leitura completa</span>
-              <code class="cta-card-path so-tecnico" id="ficha-caminho-livro">livros_abertos/LIV-001/</code>
-            </div>
-            <button type="button" id="btn-abrir-livro-aberto" class="btn-open-book">
-              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-              </svg>
-              <span>Abrir O Livro Aberto (Material Completo)</span>
-            </button>
-          </div>
-
-          <!-- Visão Estruturada e Acolhedora da Contracapa -->
-          <div id="ficha-conteudo-estruturado" hidden>
-            <!-- Destaque: Em Poucas Palavras (Para que serve) -->
-            <article class="ficha-section ficha-explicacao-box" id="ficha-secao-explicacao">
-              <div class="ficha-section-header">
-                <h3 class="ficha-section-title">💡 Em Poucas Palavras (Para que serve)</h3>
-                <span class="ficha-time-pill" id="ficha-tempo-pill">⚡ Resumo de 1 min</span>
-              </div>
-              <p class="ficha-explicacao-texto" id="ficha-explicacao-leiga"></p>
-            </article>
-
-            <!-- Resumo Completo da Capa -->
-            <article class="ficha-section">
-              <div class="ficha-section-header">
-                <h3 class="ficha-section-title">📋 Resumo Completo da Capa</h3>
-                <span class="ficha-token-pill so-tecnico" id="ficha-tokens-badge">Lido em 210 tokens</span>
-              </div>
-              <p class="ficha-resumo-texto" id="ficha-resumo"></p>
-
-              <!-- Quando usar / Dúvidas que responde -->
-              <div class="ficha-gatilhos-wrap">
-                <span class="ficha-sub-label">Quando consultar este material:</span>
-                <div class="ficha-chips-row" id="ficha-gatilhos"></div>
-              </div>
-            </article>
-
-            <!-- Ir Direto ao Ponto (Índice Clicável) -->
-            <article class="ficha-section coordenadas-section">
-              <div class="ficha-section-header">
-                <div>
-                  <h3 class="ficha-section-title">🎯 Ir Direto ao Ponto (Índice Clicável)</h3>
-                  <p class="ficha-section-hint">Clique em qualquer ponto abaixo para abrir <strong>O Livro Aberto</strong> exatamente na página, minuto do vídeo ou trecho que você precisa:</p>
-                </div>
-                <span class="count-pill" id="ficha-count-coordenadas">0 pontos</span>
-              </div>
-
-              <div class="coordenadas-list" id="lista-coordenadas" role="list">
-                <!-- Preenchido por app.js -->
-              </div>
-            </article>
-
-            <!-- Arquivos Incluídos no Material Completo -->
-            <article class="ficha-section">
-              <div class="ficha-section-header">
-                <h3 class="ficha-section-title">📂 Arquivos dentro deste Material</h3>
-              </div>
-              <ul class="arquivos-mini-list" id="ficha-arquivos-mini">
-                <!-- Preenchido por app.js -->
-              </ul>
-            </article>
-          </div>
-
-          <!-- Visão Markdown Puro da Capa Selecionada -->
-          <div id="ficha-conteudo-md" hidden>
-            <pre class="raw-md-pre"><code id="codigo-md-capa"></code></pre>
-          </div>
-        </div>
-      </section>
-      </main>
-    </div>
-
-    <!-- PAINEL DA ABA 2: FAVORITOS -->
-    <section class="tab-view-panel" id="painel-aba-favoritos" aria-labelledby="titulo-aba-favoritos" hidden>
-      <div class="tab-panel-inner">
-        <header class="tab-panel-header">
+      <!-- ==================================================================
+           ABA 2: FAVORITOS
+           ================================================================== -->
+      <section class="aba-panel stage-c" id="painel-aba-favoritos" role="tabpanel" aria-labelledby="tab-aba-favoritos" hidden>
+        <div class="aba-head-c">
           <div>
-            <h2 class="tab-panel-title" id="titulo-aba-favoritos">Materiais Favoritos</h2>
-            <p class="tab-panel-desc">Acesso rápido aos livros, vídeos, álbuns e códigos que você fixou com estrela.</p>
+            <span class="stage-kicker">⭐ Acesso Instantâneo</span>
+            <h2 class="stage-title-c">Seus Materiais Favoritos</h2>
+            <p class="aba-desc-c">Materiais fixados por você para consultar sempre que precisar sem procurar nas estantes.</p>
           </div>
-          <button type="button" id="btn-voltar-livraria-fav" class="btn-primary-sm">Explorar Livraria</button>
-        </header>
-
-        <div class="capas-grid favoritos-grid" id="grade-favoritos" role="list" aria-label="Lista de materiais favoritos"></div>
-
-        <div class="empty-state" id="estado-vazio-favoritos">
-          <p class="empty-title">Nenhum favorito fixado ainda</p>
-          <p class="empty-desc">Clique no ícone de estrela em qualquer Capa da Livraria para fixar seus materiais mais consultados aqui.</p>
-          <button type="button" id="btn-ir-livraria-vazia" class="btn-guardar-header">Ir para a Livraria</button>
+          <button type="button" class="btn-ghost-c" id="btn-voltar-livraria-fav">← Voltar para Livraria</button>
         </div>
-      </div>
-    </section>
 
-    <!-- PAINEL DA ABA 3: SKILLS & AGENTES -->
-    <section class="tab-view-panel" id="painel-aba-skills" aria-labelledby="titulo-aba-skills" hidden>
-      <div class="tab-panel-inner">
-        <header class="tab-panel-header">
+        <div class="covers-grid-c" id="grade-favoritos"></div>
+
+        <div class="empty-shelf-c" id="estado-vazio-favoritos">
+          <h3>Nenhum material favoritado ainda</h3>
+          <p>Ao abrir qualquer Capa na Livraria, clique em <strong>☆ Favoritar</strong> para fixá-la aqui.</p>
+          <div class="empty-shelf-actions">
+            <button type="button" class="btn-primary-c" id="btn-ir-livraria-vazia">Explorar Livraria</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           ABA 3: SKILLS & AGENTES
+           ================================================================== -->
+      <section class="aba-panel stage-c" id="painel-aba-skills" role="tabpanel" aria-labelledby="tab-aba-skills" hidden>
+        <div class="aba-head-c">
           <div>
-            <h2 class="tab-panel-title" id="titulo-aba-skills">Skills &amp; Padrão para Qualquer IA</h2>
-            <p class="tab-panel-desc">Conecte qualquer inteligência artificial ao seu BetterVault usando a Skill oficial e o modelo padrão das 3 categorias.</p>
+            <span class="stage-kicker">🤖 Manual Universal para IAs</span>
+            <h2 class="stage-title-c">Skills &amp; Modelo Padrão de Inserção</h2>
+            <p class="aba-desc-c">Qualquer agente (Claude, Gemini, GPT, Cursor ou Ollama) segue este padrão ao guardar e consultar conteúdos no BetterVault.</p>
           </div>
-          <div class="skills-actions-group">
-            <button type="button" id="btn-copiar-prompt-consulta" class="action-btn">Copiar Prompt de Consulta</button>
-            <button type="button" id="btn-copiar-prompt-insercao" class="action-btn">Copiar Prompt de Inserção</button>
-            <button type="button" id="btn-copiar-skill-completa" class="btn-guardar-header">Copiar SKILL.md Completa</button>
+          <div class="skills-actions-row">
+            <button type="button" class="btn-primary-c" id="btn-copiar-prompt-insercao">📋 Copiar Prompt de Inserção</button>
+            <button type="button" class="btn-ghost-c" id="btn-copiar-prompt-consulta">🔍 Copiar Prompt de Consulta</button>
+            <button type="button" class="btn-ghost-c" id="btn-copiar-skill-completa">📄 Copiar SKILL.md</button>
           </div>
-        </header>
+        </div>
 
         <div class="skills-categories-grid">
           <article class="skill-cat-card">
@@ -625,8 +507,8 @@
           </div>
           <pre class="raw-md-pre skill-md-pre"><code id="preview-skill-md">Carregando SKILL.md...</code></pre>
         </div>
-      </div>
-    </section>
+      </section>
+    </main>
 
     <!-- ====================================================================
          GAVETA LATERAL DIREITA: AJUDA & MODO AVANÇADO / IA (RECOLHIDA POR PADRÃO)
@@ -657,30 +539,49 @@
           </div>
         </section>
 
+        <!-- Métricas Técnicas -->
+        <section class="rail-block so-tecnico">
+          <h3 class="rail-block-title">Métricas de Contexto (Progressive Disclosure)</h3>
+          <div class="rail-metrics-grid">
+            <div class="rail-metric-box">
+              <span>Master</span>
+              <strong id="metric-tokens-master">0 tk</strong>
+            </div>
+            <div class="rail-metric-box">
+              <span>Capas</span>
+              <strong id="metric-tokens-capa">0 tk</strong>
+            </div>
+            <div class="rail-metric-box">
+              <span>Economia</span>
+              <strong id="metric-economia-media">0%</strong>
+            </div>
+            <div class="rail-metric-box">
+              <span>Fonte</span>
+              <strong id="metric-fonte-dados">Local</strong>
+            </div>
+          </div>
+        </section>
+
         <!-- Guia Rápido para Humanos -->
         <section class="rail-block">
-          <h3 class="rail-block-title">Como Usar a Biblioteca em 3 Passos</h3>
+          <h3 class="rail-block-title">Como Usar em 3 Passos</h3>
           <ol class="rail-steps-list">
             <li>
-              <strong>1. Escolha uma Estante (ou pesquise no topo):</strong>
-              Na Coluna 1 você filtra por assunto ou clica num formato (Livros, Vídeos, Fotos ou Projetos).
+              <strong>1. Escolha uma Estante ou pesquise:</strong>
+              Digite sua dúvida na barra central ou clique numa estante e formato.
             </li>
             <li>
               <strong>2. Leia a Capa em 1 Minuto:</strong>
-              Cada cartão na Coluna 2 funciona como a capa de um livro real: explica <em>para que serve</em> sem obrigar você a abrir arquivos gigantes.
+              O cartão central resume para que serve o material sem abrir arquivos pesados.
             </li>
             <li>
               <strong>3. Vá Direto ao Ponto:</strong>
-              Na Coluna 3, clique em qualquer item de <strong>Ir Direto ao Ponto</strong> para abrir a página exata do PDF, o minuto do vídeo ou o trecho do código!
-            </li>
-            <li>
-              <strong>+ Guardar Novos Materiais:</strong>
-              Use o botão <strong>+ Guardar na Biblioteca</strong> no topo para cadastrar novos itens em 3 passos, sem usar terminal.
+              Clique em qualquer botão de <strong>Ir Direto ao Ponto</strong> para abrir a página, minuto ou trecho exato.
             </li>
           </ol>
         </section>
 
-        <!-- Bloco Técnico: Comandos CLI (Visível ou destacado para usuários avançados) -->
+        <!-- Bloco Técnico: Comandos CLI -->
         <section class="rail-block">
           <h3 class="rail-block-title">Servidor Local &amp; CLI (<code>bibliotecario.py</code>)</h3>
           <p class="rail-text">Para gravar arquivos diretamente no disco ou usar via agentes de IA no terminal:</p>
@@ -691,14 +592,6 @@
               <button type="button" class="btn-copy-xs" data-copy-cmd='python bibliotecario.py servir --porta 4325'>Copiar</button>
             </div>
             <code>python bibliotecario.py servir --porta 4325</code>
-          </div>
-
-          <div class="cli-cmd-box">
-            <div class="cli-cmd-header">
-              <span>Busca instantânea (&lt; 5 ms)</span>
-              <button type="button" class="btn-copy-xs" data-copy-cmd='python bibliotecario.py buscar "video"'>Copiar</button>
-            </div>
-            <code>python bibliotecario.py buscar "video"</code>
           </div>
 
           <div class="cli-cmd-box">
@@ -732,7 +625,7 @@
   </div>
 
   <!-- ====================================================================
-       ESTRUTURA 3: O LIVRO ABERTO (LEITOR MULTIMODAL EXPLICADO)
+       O LIVRO ABERTO (LEITOR MULTIMODAL EXPLICADO)
        ==================================================================== -->
   <div
     class="livro-aberto-backdrop"
@@ -743,7 +636,6 @@
     hidden
   >
     <div class="livro-aberto-sheet">
-      <!-- Cabeçalho do Livro Aberto -->
       <header class="livro-aberto-header">
         <div class="la-header-left">
           <button type="button" id="btn-fechar-livro-aberto" class="btn-back-estante" title="Voltar para a Estante de Capas (Atalho: Esc)">
@@ -769,34 +661,25 @@
         </div>
       </header>
 
-      <!-- Barra de Abas dos Arquivos do Material -->
       <div class="livro-aberto-toolbar">
-        <div class="la-tabs" id="abas-arquivos-livro" role="tablist" aria-label="Partes e arquivos deste material">
-          <!-- Abas geradas por app.js -->
-        </div>
+        <div class="la-tabs" id="abas-arquivos-livro" role="tablist" aria-label="Partes e arquivos deste material"></div>
         <div class="la-toolbar-actions">
           <button type="button" id="btn-copiar-conteudo-arquivo" class="btn-copy-xs">Copiar Texto / Conteúdo</button>
           <button type="button" id="btn-copiar-caminho-arquivo" class="btn-copy-xs so-tecnico">Copiar Caminho</button>
         </div>
       </div>
 
-      <!-- Corpo Principal do Livro Aberto (Sidebar de Pontos-Chave + Palco Explicado) -->
       <div class="livro-aberto-body">
-        <!-- Sidebar Esquerda: Ir Direto ao Ponto + Arquivos -->
         <aside class="la-sidebar" aria-label="Índice de pontos e arquivos deste material">
           <div class="la-sidebar-section">
             <h3 class="la-sidebar-heading">🎯 Ir Direto ao Ponto</h3>
             <p class="la-sidebar-sub">Clique para pular direto entre os capítulos, minutos ou partes principais:</p>
-            <div class="la-coordenadas-nav" id="modal-lista-coordenadas">
-              <!-- Preenchido por app.js -->
-            </div>
+            <div class="la-coordenadas-nav" id="modal-lista-coordenadas"></div>
           </div>
 
           <div class="la-sidebar-section">
             <h3 class="la-sidebar-heading">📂 Arquivos deste Material</h3>
-            <ul class="la-file-tree" id="modal-arvore-arquivos">
-              <!-- Preenchido por app.js -->
-            </ul>
+            <ul class="la-file-tree" id="modal-arvore-arquivos"></ul>
           </div>
 
           <div class="la-sidebar-section">
@@ -805,16 +688,13 @@
           </div>
         </aside>
 
-        <!-- Área Principal de Leitura Profunda (com Faixa "Explicação Simples deste Material" no topo) -->
-        <section class="la-stage" id="modal-stage-container" aria-live="polite">
-          <!-- Renderizado dinamicamente por app.js -->
-        </section>
+        <section class="la-stage" id="modal-stage-container" aria-live="polite"></section>
       </div>
     </div>
   </div>
 
   <!-- ====================================================================
-       ONDA 3: ASSISTENTE VISUAL "+ GUARDAR NA BIBLIOTECA" (MODAL DE 3 PASSOS)
+       ASSISTENTE VISUAL "+ GUARDAR NA BIBLIOTECA" (MODAL DE 3 PASSOS)
        ==================================================================== -->
   <div
     class="livro-aberto-backdrop"
@@ -827,7 +707,7 @@
     <div class="guardar-modal-sheet">
       <header class="guardar-modal-header">
         <div>
-          <span class="welcome-badge">✨ Assistente Visual · Sem Terminal</span>
+          <span class="welcome-badge-c">✨ Assistente Visual · Sem Terminal</span>
           <h2 class="la-title" id="modal-guardar-titulo">+ Guardar Novo Material na Biblioteca</h2>
           <p class="coluna-desc">Preencha os 3 passos abaixo para criar a Capa de leitura rápida e guardar o conteúdo no Livro Aberto.</p>
         </div>
@@ -842,7 +722,6 @@
       </header>
 
       <form id="form-guardar-livro" class="guardar-modal-body">
-        <!-- PASSO 1: O QUE VOCÊ QUER GUARDAR E EM QUAL ESTANTE? -->
         <fieldset class="guardar-step-card">
           <legend class="guardar-step-legend">
             <span class="salto-num">1</span>
@@ -912,7 +791,6 @@
           </div>
         </fieldset>
 
-        <!-- PASSO 2: A CAPA DO MATERIAL (EM LINGUAGEM SIMPLES) -->
         <fieldset class="guardar-step-card">
           <legend class="guardar-step-legend">
             <span class="salto-num">2</span>
@@ -974,7 +852,6 @@
           </div>
         </fieldset>
 
-        <!-- PASSO 3: IR DIRETO AO PONTO & CONTEÚDO INICIAL -->
         <fieldset class="guardar-step-card">
           <legend class="guardar-step-legend">
             <span class="salto-num">3</span>
@@ -990,7 +867,6 @@
           </div>
 
           <div id="lista-pontos-guardar" class="guardar-pontos-list">
-            <!-- Linha 1 padrão -->
             <div class="guardar-ponto-row">
               <input type="text" class="guardar-input input-ponto-rotulo" placeholder="Nome do ponto (Ex: Esquema de 2 Luzes)" required>
               <input type="text" class="guardar-input input-ponto-alvo" placeholder="Onde fica? (Ex: Pág. 12 ou Minuto 02:30)" required>
@@ -1023,7 +899,7 @@
         </fieldset>
 
         <footer class="guardar-modal-footer">
-          <button type="button" id="btn-cancelar-guardar" class="btn-ghost-sm">Cancelar</button>
+          <button type="button" id="btn-cancelar-guardar" class="btn-ghost-c">Cancelar</button>
           <button type="submit" id="btn-submit-guardar" class="btn-guardar-submit">
             <span>✓ Guardar na Biblioteca</span>
           </button>
@@ -1031,6 +907,11 @@
       </form>
     </div>
   </div>
+
+  <!-- ====================================================================
+       ELEMENTOS TÉCNICOS AUXILIARES (USADOS NO MODO TÉCNICO / SCRIPT)
+       ==================================================================== -->
+  <select id="select-md-arquivo" hidden aria-hidden="true"></select>
 
   <!-- Toast de Feedback Rápido -->
   <div class="toast-feedback" id="toast-feedback" role="status" aria-live="polite" hidden></div>
