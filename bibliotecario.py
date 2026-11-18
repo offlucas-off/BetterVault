@@ -16,6 +16,7 @@ import mimetypes
 import os
 import re
 import shutil
+import subprocess
 import sys
 import time
 import unicodedata
@@ -31,6 +32,7 @@ DIR_CAPAS = RAIZ / "capas"
 DIR_LIVROS_ABERTOS = RAIZ / "livros_abertos"
 ARQ_MASTER = RAIZ / "INDICE_MASTER.md"
 ARQ_CATALOGO = RAIZ / "catalogo.json"
+ARQ_REPOS_GITHUB = RAIZ / "repositorios_github.json"
 
 DEFINICAO_CATEGORIAS: List[Dict[str, str]] = [
     {
@@ -1170,6 +1172,123 @@ def comando_catalogar(args: argparse.Namespace) -> int:
     return 0
 
 
+def _git_info_local(pasta: Path) -> Dict[str, Any]:
+    if not (pasta / ".git").exists():
+        return {"clonado": False, "branch": None, "commit_local": None, "data_commit": None}
+    try:
+        branch = subprocess.check_output(
+            ["git", "-C", str(pasta), "rev-parse", "--abbrev-ref", "HEAD"],
+            stderr=subprocess.DEVNULL,
+            timeout=5,
+            text=True,
+        ).strip()
+        log_line = subprocess.check_output(
+            ["git", "-C", str(pasta), "log", "-1", "--format=%h|%cs|%s"],
+            stderr=subprocess.DEVNULL,
+            timeout=5,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        ).strip()
+        partes = log_line.split("|", 2)
+        return {
+            "clonado": True,
+            "branch": branch,
+            "commit_local": partes[0] if len(partes) > 0 else None,
+            "data_commit": partes[1] if len(partes) > 1 else None,
+            "ultimo_assunto": partes[2] if len(partes) > 2 else "",
+        }
+    except Exception:
+        return {"clonado": True, "branch": None, "commit_local": None, "data_commit": None}
+
+
+def listar_repositorios_github() -> Dict[str, Any]:
+    if not ARQ_REPOS_GITHUB.exists():
+        return {"ok": True, "repositorios": []}
+    dados = json.loads(ARQ_REPOS_GITHUB.read_text(encoding="utf-8"))
+    for repo in dados.get("repositorios", []):
+        pasta = RAIZ / str(repo.get("pasta_local", ""))
+        repo.update(_git_info_local(pasta))
+    return {"ok": True, **dados}
+
+
+def verificar_atualizacoes_repos(repo_id: Optional[str] = None) -> Dict[str, Any]:
+    if not ARQ_REPOS_GITHUB.exists():
+        raise FileNotFoundError("repositorios_github.json nao encontrado.")
+    dados = json.loads(ARQ_REPOS_GITHUB.read_text(encoding="utf-8"))
+    agora = datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+    for repo in dados.get("repositorios", []):
+        if repo_id and repo.get("id") != repo_id:
+            continue
+        pasta = RAIZ / str(repo.get("pasta_local", ""))
+        if not (pasta / ".git").exists():
+            repo["status_atualizacao"] = "nao_clonado"
+            repo["commits_atras"] = 0
+            repo["ultima_verificacao"] = agora
+            continue
+        try:
+            subprocess.run(
+                ["git", "-C", str(pasta), "fetch", "--quiet"],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=15,
+            )
+            atras_raw = subprocess.check_output(
+                ["git", "-C", str(pasta), "rev-list", "--count", "HEAD..@{u}"],
+                stderr=subprocess.DEVNULL,
+                timeout=5,
+                text=True,
+            ).strip()
+            atras = int(atras_raw or "0")
+            repo["commits_atras"] = atras
+            repo["status_atualizacao"] = "atualizacao_disponivel" if atras > 0 else "atualizado"
+            repo["ultima_verificacao"] = agora
+        except Exception as exc:
+            repo["status_atualizacao"] = "erro"
+            repo["erro_verificacao"] = str(exc)
+            repo["ultima_verificacao"] = agora
+
+    ARQ_REPOS_GITHUB.write_text(
+        json.dumps(dados, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    return listar_repositorios_github()
+
+
+def atualizar_repositorio_github(repo_id: str) -> Dict[str, Any]:
+    if not ARQ_REPOS_GITHUB.exists():
+        raise FileNotFoundError("repositorios_github.json nao encontrado.")
+    dados = json.loads(ARQ_REPOS_GITHUB.read_text(encoding="utf-8"))
+    alvo = next((r for r in dados.get("repositorios", []) if r.get("id") == repo_id), None)
+    if not alvo:
+        raise ValueError(f"Repositorio '{repo_id}' nao encontrado.")
+    pasta = RAIZ / str(alvo.get("pasta_local", ""))
+    if not (pasta / ".git").exists():
+        raise FileNotFoundError(f"Clone local ausente em {alvo.get('pasta_local')}.")
+
+    subprocess.run(
+        ["git", "-C", str(pasta), "pull", "--ff-only", "--quiet"],
+        check=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.PIPE,
+        timeout=30,
+    )
+    alvo["commits_atras"] = 0
+    alvo["status_atualizacao"] = "atualizado"
+    alvo["ultima_verificacao"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    alvo.pop("erro_verificacao", None)
+
+    ARQ_REPOS_GITHUB.write_text(
+        json.dumps(dados, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    return listar_repositorios_github()
+
+
 class ManipuladorBibliotecaHTTP(SimpleHTTPRequestHandler):
     """Servidor HTTP local estático + API JSON para o BetterVault."""
 
@@ -1231,6 +1350,10 @@ class ManipuladorBibliotecaHTTP(SimpleHTTPRequestHandler):
             self._enviar_json(200, catalogo)
             return
 
+        if rota == "/api/repos":
+            self._enviar_json(200, listar_repositorios_github())
+            return
+
         # Previne escape fora de RAIZ
         caminho_rel = unquote(rota.lstrip("/"))
         alvo = (RAIZ / caminho_rel).resolve()
@@ -1269,6 +1392,26 @@ class ManipuladorBibliotecaHTTP(SimpleHTTPRequestHandler):
                 fav_arg = dados.get("favorito", None)
                 fav_bool = None if fav_arg is None else bool(fav_arg)
                 res = alternar_favorito_livro(str(dados.get("id", "")), fav_bool)
+                self._enviar_json(200, res)
+            except Exception as exc:
+                self._enviar_json(400, {"ok": False, "erro": str(exc)})
+            return
+
+        if rota == "/api/repos/verificar":
+            try:
+                dados = json.loads(bruto.decode("utf-8")) if bruto else {}
+                repo_id = dados.get("id") if isinstance(dados, dict) else None
+                res = verificar_atualizacoes_repos(repo_id or None)
+                self._enviar_json(200, res)
+            except Exception as exc:
+                self._enviar_json(400, {"ok": False, "erro": str(exc)})
+            return
+
+        if rota == "/api/repos/atualizar":
+            try:
+                dados = json.loads(bruto.decode("utf-8")) if bruto else {}
+                repo_id = str(dados.get("id", "")) if isinstance(dados, dict) else ""
+                res = atualizar_repositorio_github(repo_id)
                 self._enviar_json(200, res)
             except Exception as exc:
                 self._enviar_json(400, {"ok": False, "erro": str(exc)})

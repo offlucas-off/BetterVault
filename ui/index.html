@@ -66,6 +66,23 @@
           </svg>
           <span class="rail-btn-label">Skills</span>
         </button>
+
+        <button
+          type="button"
+          class="rail-btn"
+          id="tab-aba-repos"
+          data-aba="repos"
+          role="tab"
+          aria-selected="false"
+          title="Meus repositórios GitHub — Clones locais e referência de skills"
+          aria-label="Repositórios GitHub"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>
+          </svg>
+          <span class="rail-btn-label">GitHub</span>
+          <span class="rail-badge" id="badge-count-repos">6</span>
+        </button>
       </nav>
 
       <div class="rail-spacer"></div>
@@ -506,6 +523,27 @@
             <button type="button" id="btn-recarregar-skill" class="btn-copy-xs">Atualizar do Disco</button>
           </div>
           <pre class="raw-md-pre skill-md-pre"><code id="preview-skill-md">Carregando SKILL.md...</code></pre>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           ABA 4: MEUS REPOSITÓRIOS GITHUB
+           ================================================================== -->
+      <section class="aba-panel stage-c" id="painel-aba-repos" role="tabpanel" aria-labelledby="tab-aba-repos" hidden>
+        <div class="aba-head-c">
+          <div>
+            <span class="stage-kicker">📦 Clonados em repositorios_github/</span>
+            <h2 class="stage-title-c">Meus Repositórios GitHub</h2>
+            <p class="aba-desc-c">Repositórios clonados no vault como referência local, com verificação de atualização e registro de como cada skill é chamada (sem instalação automática).</p>
+          </div>
+          <div class="repos-head-actions">
+            <span class="count-pill-c" id="status-verificacao-repos">6 repositórios locais</span>
+            <button type="button" class="btn-primary-c" id="btn-verificar-repos">🔄 Verificar Atualizações</button>
+          </div>
+        </div>
+
+        <div class="repos-list-c" id="lista-repos-github" role="list" aria-label="Lista horizontal de repositórios GitHub">
+          <!-- Renderizado dinamicamente por app.js -->
         </div>
       </section>
     </main>

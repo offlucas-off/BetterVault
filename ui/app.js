@@ -1041,14 +1041,16 @@ const FALLBACK_CATALOGO = {
     const pLivraria = document.getElementById("painel-aba-livraria");
     const pFavs = document.getElementById("painel-aba-favoritos");
     const pSkills = document.getElementById("painel-aba-skills");
+    const pRepos = document.getElementById("painel-aba-repos");
     const mobTabs = document.getElementById("mobile-col-tabs");
 
     if (pLivraria) pLivraria.hidden = novaAba !== "livraria";
     if (pFavs) pFavs.hidden = novaAba !== "favoritos";
     if (pSkills) pSkills.hidden = novaAba !== "skills";
+    if (pRepos) pRepos.hidden = novaAba !== "repos";
     if (mobTabs) mobTabs.style.display = novaAba === "livraria" ? "" : "none";
 
-    document.querySelectorAll("#nav-abas-principais .primary-tab-btn").forEach((btn) => {
+    document.querySelectorAll("#nav-abas-principais [data-aba]").forEach((btn) => {
       const ativo = btn.getAttribute("data-aba") === novaAba;
       btn.classList.toggle("is-active", ativo);
       btn.setAttribute("aria-selected", String(ativo));
@@ -1056,6 +1058,139 @@ const FALLBACK_CATALOGO = {
 
     if (novaAba === "favoritos") renderizarAbaFavoritos();
     if (novaAba === "skills") carregarEExibirSkill();
+    if (novaAba === "repos") carregarEExibirRepos();
+  }
+
+  async function carregarEExibirRepos() {
+    const listaEl = document.getElementById("lista-repos-github");
+    const badgeEl = document.getElementById("badge-count-repos");
+    const statusEl = document.getElementById("status-verificacao-repos");
+    if (!listaEl) return;
+
+    try {
+      const resp = await fetch("/api/repos", { cache: "no-store" });
+      if (!resp.ok) throw new Error("Falha ao carregar /api/repos");
+      const dados = await resp.json();
+      const repos = dados.repositorios || [];
+      if (badgeEl) badgeEl.textContent = String(repos.length);
+      if (statusEl) statusEl.textContent = `${repos.length} repositórios clonados`;
+      renderizarListaRepos(repos);
+    } catch (_err) {
+      listaEl.innerHTML = `<div class="empty-shelf-c"><h3>Servidor local necessário</h3><p>Inicie <code>python bibliotecario.py servir --porta 4325</code> para listar e verificar atualizações dos clones locais.</p></div>`;
+    }
+  }
+
+  function formatarStatusRepo(repo) {
+    const st = repo.status_atualizacao || "nao_verificado";
+    if (st === "atualizado") return { cls: "is-ok", texto: "✓ Atualizado" };
+    if (st === "atualizacao_disponivel") {
+      const n = repo.commits_atras || 1;
+      return { cls: "is-outdated", texto: `⬆ ${n} atualização(ões)` };
+    }
+    if (st === "erro" || st === "nao_clonado") return { cls: "is-err", texto: "⚠ Erro / Ausente" };
+    return { cls: "", texto: "Não verificado" };
+  }
+
+  function renderizarListaRepos(repos) {
+    const listaEl = document.getElementById("lista-repos-github");
+    if (!listaEl) return;
+    if (!repos.length) {
+      listaEl.innerHTML = `<div class="empty-shelf-c"><h3>Nenhum repositório cadastrado</h3><p>Adicione entradas em <code>repositorios_github.json</code>.</p></div>`;
+      return;
+    }
+
+    listaEl.innerHTML = repos
+      .map((repo) => {
+        const st = formatarStatusRepo(repo);
+        const skillBloco = repo.eh_skill
+          ? `<span class="repo-col-label">Skill (${repo.qtd_skills || 1}) · Como chamar</span>
+             <code class="repo-skill-cmd">${escaparHtml(repo.como_chamar_skill || "")}</code>
+             <span class="repo-ref-note">Referência local (não instalada)</span>`
+          : `<span class="repo-col-label">Tipo</span>
+             <span class="repo-ref-note">Repositório de referência</span>`;
+        const commitInfo = repo.commit_local
+          ? `${repo.branch || "main"} @ ${repo.commit_local}${repo.data_commit ? " · " + repo.data_commit : ""}`
+          : "Sem info git local";
+        const btnPull =
+          repo.status_atualizacao === "atualizacao_disponivel"
+            ? `<button type="button" class="btn-copy-xs" data-repo-pull="${escaparHtml(repo.id)}">Atualizar</button>`
+            : "";
+
+        return `
+          <article class="repo-row-c" role="listitem">
+            <div class="repo-col-ident">
+              <span class="repo-forma-pill">${escaparHtml(repo.forma || "Repositório")}</span>
+              <a class="repo-name-link" href="${escaparHtml(repo.url)}" target="_blank" rel="noopener noreferrer">
+                <span>${escaparHtml(repo.nome)}</span>
+                <span aria-hidden="true">↗</span>
+              </a>
+              <code class="repo-path-code">${escaparHtml(repo.pasta_local)}</code>
+            </div>
+            <div class="repo-col-obj">
+              <span class="repo-col-label">Objetivo</span>
+              <p class="repo-obj-text">${escaparHtml(repo.objetivo || "")}</p>
+            </div>
+            <div class="repo-col-skill">
+              ${skillBloco}
+            </div>
+            <div class="repo-col-sync">
+              <span class="repo-col-label">Atualização</span>
+              <span class="repo-sync-badge ${st.cls}">${st.texto}</span>
+              <span class="repo-commit-meta">${escaparHtml(commitInfo)}</span>
+              <div class="repo-sync-actions">
+                <button type="button" class="btn-copy-xs" data-repo-check="${escaparHtml(repo.id)}">Verificar</button>
+                ${btnPull}
+              </div>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+  }
+
+  async function verificarAtualizacoesRepos(repoId = null) {
+    const btnTodos = document.getElementById("btn-verificar-repos");
+    const statusEl = document.getElementById("status-verificacao-repos");
+    if (btnTodos) btnTodos.disabled = true;
+    if (statusEl) statusEl.textContent = "Verificando no GitHub...";
+    try {
+      const resp = await fetch("/api/repos/verificar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(repoId ? { id: repoId } : {}),
+      });
+      if (!resp.ok) throw new Error("Erro ao verificar atualizações");
+      const dados = await resp.json();
+      const repos = dados.repositorios || [];
+      renderizarListaRepos(repos);
+      const desatualizados = repos.filter((r) => r.status_atualizacao === "atualizacao_disponivel").length;
+      if (statusEl) {
+        statusEl.textContent = desatualizados > 0 ? `${desatualizados} com atualização disponível` : "Todos atualizados";
+      }
+      mostrarToast(desatualizados > 0 ? `${desatualizados} repositório(s) com atualização.` : "Todos os repositórios estão atualizados!");
+    } catch (err) {
+      if (statusEl) statusEl.textContent = "Erro na verificação";
+      mostrarToast("Não foi possível verificar atualizações (confira o servidor/rede).");
+    } finally {
+      if (btnTodos) btnTodos.disabled = false;
+    }
+  }
+
+  async function atualizarRepoLocal(repoId) {
+    mostrarToast("Atualizando clone local...");
+    try {
+      const resp = await fetch("/api/repos/atualizar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: repoId }),
+      });
+      if (!resp.ok) throw new Error("Falha ao atualizar");
+      const dados = await resp.json();
+      renderizarListaRepos(dados.repositorios || []);
+      mostrarToast("Repositório atualizado com sucesso!");
+    } catch (_err) {
+      mostrarToast("Erro ao atualizar repositório.");
+    }
   }
 
   function renderizarColunaCapas() {
@@ -2370,6 +2505,25 @@ const FALLBACK_CATALOGO = {
     if (btnVoltarFav) btnVoltarFav.addEventListener("click", () => alternarAbaPrincipal("livraria"));
     const btnIrFavVazia = document.getElementById("btn-ir-livraria-vazia");
     if (btnIrFavVazia) btnIrFavVazia.addEventListener("click", () => alternarAbaPrincipal("livraria"));
+
+    const btnVerificarRepos = document.getElementById("btn-verificar-repos");
+    if (btnVerificarRepos) {
+      btnVerificarRepos.addEventListener("click", () => verificarAtualizacoesRepos(null));
+    }
+    const listaRepos = document.getElementById("lista-repos-github");
+    if (listaRepos) {
+      listaRepos.addEventListener("click", (e) => {
+        const btnCheck = e.target.closest("[data-repo-check]");
+        if (btnCheck) {
+          verificarAtualizacoesRepos(btnCheck.getAttribute("data-repo-check"));
+          return;
+        }
+        const btnPull = e.target.closest("[data-repo-pull]");
+        if (btnPull) {
+          atualizarRepoLocal(btnPull.getAttribute("data-repo-pull"));
+        }
+      });
+    }
 
     const btnCopiarSkill = document.getElementById("btn-copiar-skill-completa");
     if (btnCopiarSkill) {

@@ -1,4 +1,6 @@
 99_LIXEIRA/
+propostas_ui/
+repositorios_github/*/
 __pycache__/
 *.pyc
 .venv/
